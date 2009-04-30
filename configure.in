@@ -1,0 +1,2184 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.52)
+
+AC_INIT(src/main/main.c)
+
+dnl Set various version strings - taken gratefully from the SDL sources
+#
+# Making releases:
+# Change the version, then:
+#   MINIGUI_MICRO_VERSION += 1;
+#   MINIGUI_INTERFACE_AGE += 1;
+#   MINIGUI_BINARY_AGE += 1;
+# if any functions have been added, set MINIGUI_INTERFACE_AGE to 0.
+# if backwards compatibility has been broken,
+# set MINIGUI_BINARY_AGE and MINIGUI_INTERFACE_AGE to 0.
+#
+MiniGUI_MAJOR_VERSION=1
+MiniGUI_MINOR_VERSION=6
+MiniGUI_MICRO_VERSION=10
+MiniGUI_INTERFACE_AGE=0
+MiniGUI_BINARY_AGE=0
+MiniGUI_VERSION=$MiniGUI_MAJOR_VERSION.$MiniGUI_MINOR_VERSION.$MiniGUI_MICRO_VERSION
+
+AC_SUBST(MiniGUI_MAJOR_VERSION)
+AC_SUBST(MiniGUI_MINOR_VERSION)
+AC_SUBST(MiniGUI_MICRO_VERSION)
+AC_SUBST(MiniGUI_INTERFACE_AGE)
+AC_SUBST(MiniGUI_BINARY_AGE)
+AC_SUBST(MiniGUI_VERSION)
+
+# libtool versioning
+LT_RELEASE=$MiniGUI_MAJOR_VERSION.$MiniGUI_MINOR_VERSION
+LT_CURRENT=`expr $MiniGUI_MICRO_VERSION - $MiniGUI_INTERFACE_AGE`
+LT_REVISION=$MiniGUI_INTERFACE_AGE
+LT_AGE=`expr $MiniGUI_BINARY_AGE - $MiniGUI_INTERFACE_AGE`
+
+AC_SUBST(LT_RELEASE)
+AC_SUBST(LT_CURRENT)
+AC_SUBST(LT_REVISION)
+AC_SUBST(LT_AGE)
+
+AC_CANONICAL_SYSTEM
+
+dnl ========================================================================
+dnl Check for tools
+dnl AC_PROG_CC
+AC_PROG_LD
+AC_PROG_RANLIB
+AC_PROG_LIBTOOL
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+
+dnl ========================================================================
+dnl Put the name and version of the package here
+AM_INIT_AUTOMAKE(libminigui,$MiniGUI_VERSION,-)
+
+dnl ========================================================================
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_DIRENT
+AC_CHECK_HEADERS(sys/types.h sys/time.h termio.h unistd.h math.h locale.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_MEMCMP
+AC_FUNC_MMAP
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS(time mktime localtime strdup strcasecmp strncasecmp strerror setlocale getpt)
+
+dnl ========================================================================
+dnl User selectable options
+
+dnl System wide options
+procs_version="no"
+stand_alone="no"
+use_newgal="yes"
+use_own_stdio="no"
+use_own_malloc="no"
+use_own_pthread="no"
+
+incore_res="no"
+fixed_math="yes"
+use_miniguientry="no"
+use_debug="no"
+trace_message="no"
+message_string="no"
+move_window_by_mouse="yes"
+double_click="yes"
+build_cursor_support="yes"
+build_clipboard="yes"
+
+dnl GAL engine-specific options
+with_coor_trans_cw="no"
+with_coor_trans_ccw="no"
+
+dnl IAL engine-specific options
+build_custom_ial_engine="no"
+build_ep7211_ial_engine="no"
+build_ads_ial_engine="no"
+build_ipaq_ial_engine="no"
+build_figueroa_ial_engine="no"
+build_l7200_ial_engine="no"
+build_arm3000_ial_engine="no"
+build_dm270_ial_engine="no"
+build_evmv10_ial_engine="no"
+build_fft7202_ial_engine="no"
+build_palm2_ial_engine="no"
+build_mpc823_ial_engine="no"
+build_ucb1x00_ial_engine="no"
+bulid_px255b_ial_engine="no"
+build_vr4181_ial_engine="no"
+build_helio_ial_engine="no"
+build_tfstb_ial_engine="no"
+build_t800_ial_engine="no"
+build_mc68x328_ial_engine="no"
+build_smdk2410_ial_engine="no"
+build_hh2410r3_ial_engine="no"
+build_c33l05_ial_engine="no"
+build_hh2440_ial_engine="no"
+build_skyeyeep7312_ial_engine="no"
+build_dmgstb_ial_engine="no"
+build_fip_ial_engine="no"
+build_svpxx_ial_engine="no"
+build_ads7846_ial_engine="no"
+build_dummy_ial_engine="yes"
+build_em8620_ial_engine="no"
+build_em86_ial_engine="no"
+build_em85_ial_engine="no"
+build_auto_ial_engine="no"
+build_random_ial_engine="no"
+build_hhkbdir_ial_engine="no"
+build_comm_ial_engine="no"
+build_qvfb_ial_engine="yes"
+build_wvfb_ial_engine="no"
+build_utpmc_ial_engine="no"
+build_fxrm9200_ial_engine="no"
+build_abssig_ial_engine="no"
+build_embest2410_ial_engine="no"
+build_embest44b0_ial_engine="no"
+build_native_ial_engine="yes"
+build_native_ps2="yes"
+build_native_imps2="yes"
+build_native_ms="yes"
+build_native_ms3="yes"
+build_native_gpm="yes"
+build_text_mode="yes"
+build_dfb_ial_engine="no"
+build_hi3510_ial_engine="no"
+
+dnl Font related options
+build_rbf_support="yes"
+build_incorerbf_16="no"
+build_incorerbf_24="no"
+build_incorerbf_gb12="yes"
+build_incorerbf_gb16="no"
+build_incorerbf_gb24="no"
+build_incorerbf_gb16_hei="no"
+build_incorerbf_kj12="no"
+build_incorerbf_kj14="no"
+build_incorerbf_kj16="no"
+build_incorerbf_big12="no"
+build_incorerbf_big16="no"
+build_incorerbf_big24="no"
+
+build_vbf_support="yes"
+build_incorefont_sansserif="yes"
+build_incorefont_courier="yes"
+build_incorefont_symbol="no"
+build_incorefont_vgas="no"
+build_incorefont_helv="no"
+
+build_qpf_support="no"
+build_ttf_support="no"
+build_ft2_support="no"
+build_ttfcache_support="no"
+build_type1_support="no"
+
+dnl Charset related options
+build_latin2_support="no"
+build_latin3_support="no"
+build_latin4_support="no"
+build_cyrillic_support="no"
+build_arabic_support="no"
+build_greek_support="no"
+build_hebrew_support="no"
+build_latin5_support="no"
+build_latin6_support="no"
+build_thai_support="no"
+build_latin7_support="no"
+build_latin8_support="no"
+build_latin9_support="yes"
+build_latin10_support="no"
+
+build_gb_support="yes"
+build_gbk_support="yes"
+build_gb18030_support="no"
+build_big5_support="yes"
+build_euckr_support="no"
+build_eucjp_support="no"
+build_shiftjis_support="no"
+
+build_unicode_support="yes"
+
+dnl Keyboard layout specific options
+use_kbd_frpc="no"
+use_kbd_fr="no"
+use_kbd_de="no"
+use_kbd_delatin1="no"
+use_kbd_it="no"
+use_kbd_es="no"
+use_kbd_escp850="no"
+
+dnl Image related options
+build_save_bitmap="yes"
+build_pcx_support="no"
+build_lbm_support="no"
+build_tga_support="no"
+build_gif_support="yes"
+build_jpg_support="yes"
+build_png_support="yes"
+
+dnl Input method options
+build_ime_gb2312="no"
+build_ime_gb2312_pinyin="no"
+
+dnl Misc options
+build_misc_mousecalibrate="yes"
+build_misc_aboutdlg="yes"
+build_misc_savescreen="yes"
+
+with_gray_screen="no"
+tiny_screen_size="no"
+with_fixed_barlen="no"
+
+dnl Control related options
+build_ctrl_static="yes"
+build_ctrl_button="yes"
+build_ctrl_simedit="yes"
+build_ctrl_sledit="yes"
+build_ctrl_listbox="yes"
+build_ctrl_progressbar="yes"
+build_ctrl_toolbar="yes"
+build_ctrl_newtoolbar="yes"
+build_ctrl_menubutton="yes"
+build_ctrl_trackbar="yes"
+build_ctrl_combobox="yes"
+build_ctrl_propsheet="yes"
+build_ctrl_scrollview="yes"
+build_ctrl_textedit="yes"
+build_ext_ctrl_monthcal="yes"
+build_ext_ctrl_treeview="yes"
+build_ext_ctrl_spinbox="yes"
+build_ext_ctrl_coolbar="yes"
+build_ext_ctrl_listview="yes"
+build_ext_ctrl_iconview="yes"
+build_ext_ctrl_gridview="no"
+build_ext_ctrl_animation="yes"
+
+build_ext_skin="yes"
+
+build_libvcongui="yes"
+
+build_adv2dapi="yes"
+
+enable_video_dummy="yes"
+enable_video_fbcon="yes"
+enable_video_qvfb="yes"
+enable_video_commlcd="no"
+enable_video_shadow="no"
+enable_video_wvfb="no"
+enable_video_mlshadow="no"
+enable_video_em86gfx="no"
+enable_video_em85xxyuv="no"
+enable_video_em85xxosd="no"
+enable_video_svpxxosd="no"
+enable_video_bf533="no"
+enable_video_mb93493="no"
+enable_video_utpmc="no"
+enable_video_dfb="no"
+enable_video_hi35xx="no"
+
+AC_ARG_ENABLE(incoreres,
+[  --enable-incoreres       use incore resource instead file IO to initialize MiniGUI <default=no>],
+incore_res=$enableval)
+
+AC_ARG_ENABLE(miniguientry,
+[  --enable-miniguientry    use minigui_entry function in MiniGUI <default=no>],
+use_miniguientry=$enableval)
+
+AC_ARG_ENABLE(fixedmath,
+[  --enable-fixedmath       include fixed math routines <default=yes>],
+fixed_math=$enableval)
+
+AC_ARG_ENABLE(debug,
+[  --enable-debug           build with debugging messages <default=no>],
+use_debug=$enableval)
+
+AC_ARG_ENABLE(tracemsg,
+[  --enable-tracemsg        trace messages of MiniGUI <default=no>],
+trace_message=$enableval)
+
+AC_ARG_ENABLE(msgstr,
+[  --enable-msgstr          include symbol name of message <default=no>],
+message_string=$enableval)
+
+AC_ARG_ENABLE(micemoveable,
+[  --enable-micemoveable    user can move window by using mouse <default=yes>],
+move_window_by_mouse=$enableval)
+
+AC_ARG_ENABLE(dblclk,
+[  --enable-dblclk          mouse button can do double click <default=yes>],
+double_click=$enableval)
+
+AC_ARG_ENABLE(cursor,
+[  --enable-cursor          include cursor support <default=yes>],
+build_cursor_support=$enableval)
+
+AC_ARG_ENABLE(clipboard,
+[  --enable-clipboard       include clipboard support <default=yes>],
+build_clipboard=$enableval)
+
+AC_ARG_ENABLE(coortrans_cw,
+[  --enable-coortrans_cw    support clockwise rotation of screen in the native FB GAL engine <default=no>],
+with_coor_trans_cw=$enableval)
+
+AC_ARG_ENABLE(coortrans_ccw,
+[  --enable-coortrans_ccw   support counterclockwise rotation of screen in the native FB GAL engine <default=no>],
+with_coor_trans_ccw=$enableval)
+
+AC_ARG_ENABLE(customial,
+[  --enable-customial       build the IAL engine for customer's board <default=no>],
+build_custom_ial_engine=$enableval)
+
+AC_ARG_ENABLE(ipaqial,
+[  --enable-ipaqial         build the IAL engine for iPAQ H3600 <default=no>],
+build_ipaq_ial_engine=$enableval)
+
+AC_ARG_ENABLE(dummyial,
+[  --enable-dummyial        build the Dummy IAL engine <default=yes>],
+build_dummy_ial_engine=$enableval)
+
+AC_ARG_ENABLE(autoial,
+[  --enable-autoial         build the Automatic IAL engine <default=no>],
+build_auto_ial_engine=$enableval)
+
+AC_ARG_ENABLE(randomial,
+[  --enable-randomial       build the Random IAL engine <default=no>],
+build_random_ial_engine=$enableval)
+
+AC_ARG_ENABLE(commial,
+[  --enable-commial         build the COMM IAL engine <default=no>],
+build_comm_ial_engine=$enableval)
+
+AC_ARG_ENABLE(qvfbial,
+[  --enable-qvfbial         build the QVFB IAL engine <default=yes>],
+build_qvfb_ial_engine=$enableval)
+
+AC_ARG_ENABLE(nativeial,
+[  --enable-nativeial       build the native (Linux console) IAL engine <default=yes>],
+build_native_ial_engine=$enableval)
+
+AC_ARG_ENABLE(nativeps2,
+[  --enable-nativeps2       build the native engine subdriver for PS2 mouse <default=yes>],
+build_native_ps2=$enableval)
+
+AC_ARG_ENABLE(nativeimps2,
+[  --enable-nativeimps2     build the native engine subdriver for IntelligentMouse (IMPS/2) mouse <default=yes>],
+build_native_imps2=$enableval)
+
+AC_ARG_ENABLE(nativems,
+[  --enable-nativems        build the native engine subdirver for old MS serial mouse <default=yes>],
+build_native_ms=$enableval)
+
+AC_ARG_ENABLE(nativems3,
+[  --enable-nativems3       build the native engine subdirver for MS3 mouse <default=yes>],
+build_native_ms3=$enableval)
+
+AC_ARG_ENABLE(nativegpm,
+[  --enable-nativegpm       build the native engine subdirver for GPM daemon <default=yes>],
+build_native_gpm=$enableval)
+
+AC_ARG_ENABLE(textmode,
+[  --enable-textmode        Linux system have console (text mode) on FrameBuffer <default=yes>],
+build_text_mode=$enableval)
+
+AC_ARG_ENABLE(rbfsupport,
+[  --enable-rbfsupport      include raw bitmap font support <default=yes>],
+build_rbf_support=$enableval)
+
+AC_ARG_ENABLE(rbf16,
+[  --enable-rbf16           include incore RBF font of ISO8859-1 8x16 fixed font (incore resource) <default=no>],
+build_incorerbf_16=$enableval)
+
+AC_ARG_ENABLE(rbfgb12,
+[  --enable-rbfgb12         include incore RBF font of GB2312 12x12 fixed/song font (incore resource) <default=yes>],
+build_incorerbf_gb12=$enableval)
+
+AC_ARG_ENABLE(rbfgb16,
+[  --enable-rbfgb16         include incore RBF font of GB2312 16x16 fixed/song font (incore resource) <default=no>],
+build_incorerbf_gb16=$enableval)
+
+AC_ARG_ENABLE(rbfbig12,
+[  --enable-rbfbig12        include incore RBF font of BIG5 12x12 fixed/ming font (incore resource) <default=no>],
+build_incorerbf_big12=$enableval)
+
+AC_ARG_ENABLE(rbfbig16,
+[  --enable-rbfbig16        include incore RBF font of BIG5 16x16 fixed/ming font (incore resource) <default=no>],
+build_incorerbf_big16=$enableval)
+
+AC_ARG_ENABLE(vbfsupport,
+[  --enable-vbfsupport      include var bitmap font support <default=yes>],
+build_vbf_support=$enableval)
+
+AC_ARG_ENABLE(fontsserif,
+[  --enable-fontsserif      include incore font sansserif <default=yes>],
+build_incorefont_sansserif=$enableval)
+
+AC_ARG_ENABLE(fontcourier,
+[  --enable-fontcourier     include incore font courier <default=yes>],
+build_incorefont_courier=$enableval)
+
+AC_ARG_ENABLE(fontsymbol,
+[  --enable-fontsymbol      include incore font symbol <default=no>],
+build_incorefont_symbol=$enableval)
+
+AC_ARG_ENABLE(fontvgas,
+[  --enable-fontvgas        include incore font VGAs <default=no>],
+build_incorefont_vgas=$enableval)
+
+AC_ARG_ENABLE(fonthelv,
+[  --enable-fonthelv        include incore font Helvetica <default=no>],
+build_incorefont_helv=$enableval)
+
+AC_ARG_ENABLE(qpfsupport,
+[  --enable-qpfsupport      build support for Qt Prerendered Font (QPF) <default=yes>],
+build_qpf_support=$enableval)
+
+AC_ARG_ENABLE(latin9support,
+[  --enable-latin9support   include Latin 9 (ISO-8859-15, West Extended) charset support <default=yes>],
+build_latin9_support=$enableval)
+
+AC_ARG_ENABLE(gbsupport,
+[  --enable-gbsupport       include EUC encoding of GB2312 charset support <default=yes>],
+build_gb_support=$enableval)
+
+AC_ARG_ENABLE(big5support,
+[  --enable-big5support     include BIG5 charset support <default=yes>],
+build_big5_support=$enableval)
+
+AC_ARG_ENABLE(unicodesupport,
+[  --enable-unicodesupport  include UNICODE (ISO-10646-1 and UTF-8 encoding) support <default=yes>],
+build_unicode_support=$enableval)
+
+AC_ARG_ENABLE(kbdfrpc,
+[  --enable-kbdfrpc         include keyboard layout for French PC keyboard (non-US 102 keys) <default=no>],
+use_kbd_frpc=$enableval)
+
+AC_ARG_ENABLE(kbdfr,
+[  --enable-kbdfr           include keyboard layout for French <default=no>],
+use_kbd_fr=$enableval)
+
+AC_ARG_ENABLE(kbdde,
+[  --enable-kbdde           include keyboard layout for German <default=no>],
+use_kbd_de=$enableval)
+
+AC_ARG_ENABLE(kbddelatin1,
+[  --enable-kbddelatin1     include keyboard layout for German Latin1 <default=no>],
+use_kbd_delatin1=$enableval)
+
+AC_ARG_ENABLE(kbdit,
+[  --enable-kbdit           include keyboard layout for Italian <default=no>],
+use_kbd_it=$enableval)
+
+AC_ARG_ENABLE(kbdes,
+[  --enable-kbdes           include keyboard layout for Spanish <default=no>],
+use_kbd_es=$enableval)
+
+AC_ARG_ENABLE(kbdescp850,
+[  --enable-kbdescp850      include keyboard layout for Spanish CP850 <default=no>],
+use_kbd_escp850=$enableval)
+
+AC_ARG_ENABLE(savebitmap,
+[  --enable-savebitmap      include SaveBitmap-related functions <default=yes>],
+build_save_bitmap=$enableval)
+
+AC_ARG_ENABLE(pcxsupport,
+[  --enable-pcxsupport      include PCX file support <default=no>],
+build_pcx_support=$enableval)
+
+AC_ARG_ENABLE(lbmsupport,
+[  --enable-lbmsupport      include LBM/PBM file support <default=no>],
+build_lbm_support=$enableval)
+
+AC_ARG_ENABLE(tgasupport,
+[  --enable-tgasupport      include TGA file support <default=no>],
+build_tga_support=$enableval)
+
+AC_ARG_ENABLE(gifsupport,
+[  --enable-gifsupport      include GIF file support <default=yes>],
+build_gif_support=$enableval)
+
+AC_ARG_ENABLE(jpgsupport,
+[  --enable-jpgsupport      include JPG file support <default=yes>],
+build_jpg_support=$enableval)
+
+AC_ARG_ENABLE(pngsupport,
+[  --enable-pngsupport      include PNG file support <default=yes>],
+build_png_support=$enableval)
+
+AC_ARG_ENABLE(mousecalibrate,
+[  --enable-mousecalibrate  include code doing mouse calibration <default=yes>],
+build_misc_mousecalibrate=$enableval)
+
+AC_ARG_ENABLE(aboutdlg,
+[  --enable-aboutdlg        include About Dialog Box <default=yes>],
+build_misc_aboutdlg=$enableval)
+
+AC_ARG_ENABLE(savescreen,
+[  --enable-savescreen      include code for screenshots <default=yes>],
+build_misc_savescreen=$enableval)
+
+AC_ARG_ENABLE(grayscreen,
+[  --enable-grayscreen      target is a gray screen <default=no>],
+with_gray_screen=$enableval)
+
+AC_ARG_ENABLE(tinyscreen,
+[  --enable-tinyscreen      target is a tiny-size screen <default=no>],
+tiny_screen_size=$enableval)
+
+AC_ARG_ENABLE(fixedbarlen,
+[  --enable-fixedbarlen     scrollbar has a fixed bar length <default=no>],
+with_fixed_barlen=$enableval)
+
+AC_ARG_ENABLE(ctrlstatic,
+[  --enable-ctrlstatic      include STATIC control <default=yes>],
+build_ctrl_static=$enableval)
+
+AC_ARG_ENABLE(ctrlbutton,
+[  --enable-ctrlbutton      include BUTTON control <default=yes>],
+build_ctrl_button=$enableval)
+
+AC_ARG_ENABLE(ctrlsimedit,
+[  --enable-ctrlsimedit     include Simple EDIT control <default=yes>],
+build_ctrl_simedit=$enableval)
+
+AC_ARG_ENABLE(ctrlsledit,
+[  --enable-ctrlsledit      include Single-Line EDIT control <default=yes>],
+build_ctrl_sledit=$enableval)
+
+AC_ARG_ENABLE(ctrllistbox,
+[  --enable-ctrllistbox     include LISTBOX control <default=yes>],
+build_ctrl_listbox=$enableval)
+
+AC_ARG_ENABLE(ctrlpgbar,
+[  --enable-ctrlpgbar       include PROGRESSBAR control <default=yes>],
+build_ctrl_progressbar=$enableval)
+
+AC_ARG_ENABLE(ctrltoolbar,
+[  --enable-ctrltoolbar     include TOOLBAR control <default=yes>],
+build_ctrl_toolbar=$enableval)
+
+AC_ARG_ENABLE(ctrlnewtoolbar,
+[  --enable-ctrlnewtoolbar  include NEWTOOLBAR control <default=yes>],
+build_ctrl_newtoolbar=$enableval)
+
+AC_ARG_ENABLE(ctrlmenubtn,
+[  --enable-ctrlmenubtn     include MENUBUTTON control <default=yes>],
+build_ctrl_menubutton=$enableval)
+
+AC_ARG_ENABLE(ctrltrackbar,
+[  --enable-ctrltrackbar    include TRACKBAR control <default=yes>],
+build_ctrl_trackbar=$enableval)
+
+AC_ARG_ENABLE(ctrlcombobox,
+[  --enable-ctrlcombobox    include COMBOBOX control <default=yes>],
+build_ctrl_combobox=$enableval)
+
+AC_ARG_ENABLE(ctrlpropsheet,
+[  --enable-ctrlpropsheet   include PROPSHEET control <default=yes>],
+build_ctrl_propsheet=$enableval)
+
+AC_ARG_ENABLE(ctrlscrollview,
+[  --enable-ctrlscrollview  include SCROLLVIEW and SCROLLWINDOW controls <default=yes>],
+build_ctrl_scrollview=$enableval)
+
+AC_ARG_ENABLE(ctrltextedit,
+[  --enable-ctrltextedit    include TEXTEDIT control which is based-on SCROLLVIEW control <default=yes>],
+build_ctrl_textedit=$enableval)
+
+AC_ARG_ENABLE(extctrlmonthcal,
+[  --enable-extctrlmonthcal     include MONTHCALENDAR control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_monthcal=$enableval)
+
+AC_ARG_ENABLE(extctrltreeview,
+[  --enable-extctrltreeview     include TREEVIEW control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_treeview=$enableval)
+
+AC_ARG_ENABLE(extctrlspinbox,
+[  --enable-extctrlspinbox      include SPINBOX control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_spinbox=$enableval)
+
+AC_ARG_ENABLE(extctrlcoolbar,
+[  --enable-extctrlcoolbar      include COOLBAR control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_coolbar=$enableval)
+
+AC_ARG_ENABLE(extctrllistview,
+[  --enable-extctrllistview     include LISTVIEW control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_listview=$enableval)
+
+AC_ARG_ENABLE(extctrliconview,
+[  --enable-extctrliconview     include ICONVIEW control in MiniGUIExt library <default=yes>],
+build_ext_ctrl_iconview=$enableval)
+
+AC_ARG_ENABLE(extctrlgridview,
+[  --enable-extctrlgridview     include GRIDVIEW control in MiniGUIExt library (test) <default=no>],
+build_ext_ctrl_gridview=$enableval)
+
+AC_ARG_ENABLE(extctrlanimation,
+[  --enable-extctrlanimation    include ANIMATION control and GIF87a/GIF89a support in MiniGUIExt library <default=yes>],
+build_ext_ctrl_animation=$enableval)
+
+AC_ARG_ENABLE(extskin,
+[  --enable-extskin             include skin support in MiniGUIExt library <default=yes>],
+build_ext_skin=$enableval)
+
+
+AC_ARG_ENABLE(libvcongui,
+[  --enable-libvcongui          include support for Virtual Console on Linux <default=yes>],
+build_libvcongui=$enableval)
+
+dnl Set up the Null video driver.
+CheckDummyVideo()
+{
+    AC_ARG_ENABLE(videodummy,
+[  --enable-videodummy          include dummy NEWGAL engine <default=yes>],
+    enable_video_dummy=$enableval)
+
+    if test "x$enable_video_dummy" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_DUMMY, 1, 
+                [Define if include dummy NEWGAL engine])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS dummy"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS dummy/libvideo_null.la"
+    fi
+}
+
+dnl Find the framebuffer console includes
+CheckFBCON()
+{
+    AC_ARG_ENABLE(videofbcon,
+[  --enable-videofbcon          include FrameBuffer console NEWGAL engine <default=yes>],
+    enable_video_fbcon=$enableval)
+    if test x$enable_video_fbcon = xyes; then
+        AC_MSG_CHECKING(for FrameBuffer console support)
+        video_fbcon=no
+        AC_TRY_COMPILE([
+         #include <linux/fb.h>
+         #include <linux/kd.h>
+         #include <linux/keyboard.h>
+        ],[
+        ],[
+        video_fbcon=yes
+        ])
+        AC_MSG_RESULT($video_fbcon)
+        if test x$video_fbcon = xyes; then
+            AC_DEFINE(_NEWGAL_ENGINE_FBCON, 1, 
+                [Define if include FrameBuffer console NEWGAL engine])
+            VIDEO_SUBDIRS="$VIDEO_SUBDIRS fbcon"
+            VIDEO_DRIVERS="$VIDEO_DRIVERS fbcon/libvideo_fbcon.la"
+        fi
+    fi
+}
+
+dnl Check Qt Virtual FrameBuffer
+CheckQVFB()
+{
+    AC_ARG_ENABLE(videoqvfb,
+[  --enable-videoqvfb           include Qt Virtual FrameBuffer NEWGAL engine <default=yes>],
+    enable_video_qvfb=$enableval)
+
+    if test "x$enable_video_qvfb" = "xyes"; then
+        AC_DEFINE(_NEWGAL_ENGINE_QVFB, 1, 
+                [Define if include Qt Virtual FrameBuffer NEWGAL engine])
+        VIDEO_SUBDIRS="$VIDEO_SUBDIRS qvfb"
+        VIDEO_DRIVERS="$VIDEO_DRIVERS qvfb/libvideo_qvfb.la"
+    fi
+}
+
+dnl Check Windows Virtual FrameBuffer
+CheckWVFB()
+{
+    AC_ARG_ENABLE(videowvfb,
+[  --enable-videowvfb           include windows Virtual FrameBuffer NEWGAL engine <default=no>],
+    enable_video_wvfb=$enableval)
+
+    if test "x$enable_video_wvfb" = "xyes"; then
+        AC_DEFINE(_NEWGAL_ENGINE_WVFB, 1, 
+                [Define if include windows Virtual FrameBuffer NEWGAL engine])
+        VIDEO_SUBDIRS="$VIDEO_SUBDIRS wvfb"
+        VIDEO_DRIVERS="$VIDEO_DRIVERS wvfb/libvideo_wvfb.la"
+        dnl AC_DEFINE(_WVFB_IAL, 1, [Define if include wvfb ial support])
+    fi
+}
+
+dnl Set up the Common LCD video driver.
+CheckCOMMLCD()
+{
+    AC_ARG_ENABLE(videocommlcd,
+[  --enable-videocommlcd        include NEWGAL engine for Common LCD <default=no>],
+    enable_video_commlcd=$enableval)
+
+    if test "x$enable_video_commlcd" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_COMMLCD, 1, 
+                [Define if include NEWGAL engine for Common LCD])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS commlcd"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS commlcd/libvideo_commlcd.la"
+    fi
+}
+
+dnl Set up the MLShadow video driver.
+CheckMLShadowVideo()
+{
+    AC_ARG_ENABLE(videomlshadow,
+[  --enable-videomlshadow        include MLShadow NEWGAL engine <default=no>],
+    enable_video_mlshadow=$enableval)
+
+    if test "x$enable_video_mlshadow" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_MLSHADOW, 1, 
+                [Define if include MLShadow NEWGAL engine])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS mlshadow"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS mlshadow/libvideo_mlshadow.la"
+    fi
+}
+
+dnl Set up the Shadow video driver.
+CheckShadowVideo()
+{
+    AC_ARG_ENABLE(videoshadow,
+[  --enable-videoshadow        include Shadow NEWGAL engine <default=no>],
+    enable_video_shadow=$enableval)
+
+    if test "x$enable_video_shadow" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_SHADOW, 1, 
+                [Define if include Shadow NEWGAL engine])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS shadow"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS shadow/libvideo_shadow.la"
+    fi
+}
+
+dnl Set up the EM85xx YUV video driver.
+CheckEM86GFX()
+{ AC_ARG_ENABLE(videoem86gfx,
+[  --enable-videoem86gfx      include NEWGAL engine for EM86xx GFX <default=no>],
+    enable_video_em86gfx=$enableval)
+
+    if test "x$enable_video_em86gfx" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_EM86GFX, 1, 
+                [Define if include NEWGAL engine for EM86xx GFX])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS em86gfx"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS em86gfx/libvideo_em86gfx.la"
+    fi
+}
+
+dnl Set up the EM85xx YUV video driver.
+CheckEM85xxYUV()
+{ AC_ARG_ENABLE(videoem85xxyuv,
+[  --enable-videoem85xxyuv      include NEWGAL engine for EM85xx YUV <default=no>],
+    enable_video_em85xxyuv=$enableval)
+
+    if test "x$enable_video_em85xxyuv" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_EM85XXYUV, 1, 
+                [Define if include NEWGAL engine for EM85xx YUV])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS em85xxyuv"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS em85xxyuv/libvideo_em85xxyuv.la"
+    fi
+}
+
+dnl Set up the EM85xx OSD video driver.
+CheckEM85xxOSD()
+{ AC_ARG_ENABLE(videoem85xxosd,
+[  --enable-videoem85xxosd      include NEWGAL engine for EM85xx OSD <default=no>],
+    enable_video_em85xxosd=$enableval)
+
+    if test "x$enable_video_em85xxosd" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_EM85XXOSD, 1, 
+                [Define if include NEWGAL engine for EM85xx OSD])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS em85xxosd"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS em85xxosd/libvideo_em85xxosd.la"
+    fi
+}
+
+dnl Set up svpxxosd video driver.
+CheckSvpxxosdVideo()
+{
+    AC_ARG_ENABLE(videosvpxxosd,
+[  --enable-videosvpxxosd           include SVPXXOSD NEWGAL engine <default=no>],
+    enable_video_svpxxosd=$enableval)
+
+    if test "x$enable_video_svpxxosd" = "xyes"; then
+        AC_DEFINE(_NEWGAL_ENGINE_SVPXXOSD, 1, 
+                [Define if include NEWGAL engine for SVPXX OSD])
+        VIDEO_SUBDIRS="$VIDEO_SUBDIRS svpxxosd"
+        VIDEO_DRIVERS="$VIDEO_DRIVERS svpxxosd/libvideo_svpxxosd.la"
+    fi
+}
+
+dnl Set up the video driver for BF533 OSD via SPI
+CheckBF533Video()
+{
+    AC_ARG_ENABLE(videobf533,
+[  --enable-videobf533          include NEWGAL engine for BF533 OSD via SPI <default=no>],
+    enable_video_bf533=$enableval)
+
+    if test "x$enable_video_bf533" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_BF533, 1, 
+                [Define if include NEWGAL engine for BF533 OSD via SPI])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS bf533"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS bf533/libvideo_bf533.la"
+    fi
+}
+
+dnl Set up the video driver for mb93493 YUV FrameBuffer driver
+CheckMB93493Video()
+{
+    AC_ARG_ENABLE(videomb93493,
+[  --enable-videomb93493          include NEWGAL engine for mb93493 YUV FrameBuffer driver <default=no>],
+    enable_video_mb93493=$enableval)
+
+    if test "x$enable_video_mb93493" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_MB93493, 1, 
+                [Define if include NEWGAL engine for mb93493 YUV FrameBuffer driver])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS mb93493"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS mb93493/libvideo_mb93493.la"
+    fi
+}
+
+dnl Set up the video driver for UTPMC.
+CheckUTPMCVideo()
+{
+    AC_ARG_ENABLE(videoutpmc,
+[  --enable-videoutpmc          include NEWGAL engine for UTPMC <default=no>],
+    enable_video_utpmc=$enableval)
+
+    if test "x$enable_video_utpmc" = "xyes"; then
+      AC_DEFINE(_NEWGAL_ENGINE_UTPMC, 1, 
+                [Define if include NEWGAL engine for UTPMC])
+      VIDEO_SUBDIRS="$VIDEO_SUBDIRS utpmc"
+      VIDEO_DRIVERS="$VIDEO_DRIVERS utpmc/libvideo_utpmc.la"
+    fi
+}
+
+dnl Set up the video driver for DirectFB.
+CheckDirectFBVideo()
+{
+    AC_ARG_ENABLE(videodfb,
+[  --enable-videodfb            include NEWGAL engine for DirectFB <default=no>],
+    enable_video_dfb=$enableval)
+
+    if test x$enable_video_dfb = xyes; then
+        AC_MSG_CHECKING(for DirectFB support)
+        video_dfb=no
+        AC_TRY_COMPILE([
+         #include <directfb.h>
+        ],[
+        ],[
+        video_dfb=yes
+        ])
+        AC_MSG_RESULT($video_dfb)
+        if test x$video_dfb = xyes; then
+            AC_DEFINE(_NEWGAL_ENGINE_DFB, 1, 
+                [Define if include NEWGAL engine for DirectFB])
+            VIDEO_SUBDIRS="$VIDEO_SUBDIRS dfb"
+            VIDEO_DRIVERS="$VIDEO_DRIVERS dfb/libvideo_dfb.la"
+        fi
+    fi
+}
+
+dnl Check HI3510/HI3560 video driver
+CheckHI35XXVideo()
+{
+    AC_ARG_ENABLE(videohi35xx,
+[  --enable-videohi35xx           include Hi35xx Video  NEWGAL engine <default=no>],
+    enable_video_hi35xx=$enableval)
+
+    if test "x$enable_video_hi35xx" = "xyes"; then
+        AC_DEFINE(_NEWGAL_ENGINE_HI3510, 1, 
+                [Define if include Hi35XX Video NEWGAL engine])
+        AC_DEFINE(_NEWGAL_ENGINE_HI3560, 1, 
+                [Define if include Hi35XX Video NEWGAL engine])
+        VIDEO_SUBDIRS="$VIDEO_SUBDIRS hisi"
+        VIDEO_DRIVERS="$VIDEO_DRIVERS hisi/libvideo_hisifbcon.la"
+    fi
+}
+
+dnl ========================================================================
+dnl Checks for option-specific libraries and headers.
+
+if test "x$procs_version" = "xyes"; then
+  use_threads="no"
+else
+  use_threads="yes"
+fi
+
+if test "x$use_newgal" = "xyes"; then
+  CheckDummyVideo
+  CheckFBCON
+  CheckQVFB
+  CheckCOMMLCD
+  CheckShadowVideo
+
+  AC_ARG_ENABLE(adv2dapi,
+[  --enable-adv2dapi            include advanced 2D graphics APIs <default=yes>],
+build_adv2dapi=$enableval)
+fi
+
+dnl ========================================================================
+dnl Checks for libraries.
+
+have_pthreads=no
+if test "x$use_threads" != "xno"; then
+  AC_MSG_CHECKING(for pthread library)
+  TMP_SAVE_LIBS=$LIBS
+  AC_TRY_LINK([
+#include "confdefs.h"
+#define __C_ASM_H /* fix for retarded Digital Unix headers */
+#include <pthread.h>],[
+void foo(void)
+{
+pthread_exit (0);
+}
+],
+    have_pthreads=yes
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+    LIBS=$TMP_SAVE_LIBS
+fi
+
+dnl Check for FreeType library
+if test "x$build_ft2_support" != "xno"; then
+    AC_CHECK_LIB(freetype, FT_Library_Version,
+        SYSTEM_LIBS="$SYSTEM_LIBS `freetype-config --libs`", 
+        build_ft2_support=no)
+
+    CFLAGS="$CFLAGS `freetype-config --cflags`"
+else
+    if test "x$build_ttf_support" != "xno"; then
+        AC_CHECK_LIB(ttf, TT_FreeType_Version,
+            SYSTEM_LIBS="$SYSTEM_LIBS -lttf", 
+            build_ttf_support=no)
+
+        CFLAGS="$CFLAGS -I/usr/include/freetype1"
+    fi
+fi
+
+dnl Check for Type1 font library.
+if test "x$build_type1_support" != "xno"; then
+    AC_CHECK_LIB(t1, T1_InitLib,
+        SYSTEM_LIBS="$SYSTEM_LIBS -lt1",
+        build_type1_support=no, -lm)
+fi
+
+dnl Check for JPEG library.
+if test "x$build_jpg_support" != "xno"; then
+    AC_CHECK_LIB(jpeg, jpeg_std_error,
+        SYSTEM_LIBS="$SYSTEM_LIBS -ljpeg",
+        build_jpg_support=no, -lm)
+fi
+
+dnl Check for PNG library.
+if test "x$build_png_support" != "xno"; then
+    AC_CHECK_LIB(png, png_check_sig,
+        SYSTEM_LIBS="$SYSTEM_LIBS -lpng",
+        build_png_support=no, -lz -lm)
+fi
+
+AM_CONFIG_HEADER(mgconfig.h)
+
+AC_DEFINE_UNQUOTED(MINIGUI_MAJOR_VERSION, $MiniGUI_MAJOR_VERSION,
+            [Major version of MiniGUI])
+AC_DEFINE_UNQUOTED(MINIGUI_MINOR_VERSION, $MiniGUI_MINOR_VERSION,
+            [Minor version of MiniGUI])
+AC_DEFINE_UNQUOTED(MINIGUI_MICRO_VERSION, $MiniGUI_MICRO_VERSION,
+            [Micro version of MiniGUI])
+AC_DEFINE_UNQUOTED(MINIGUI_INTERFACE_AGE, $MiniGUI_INTERFACE_AGE,
+            [Interface age of MiniGUI])
+AC_DEFINE_UNQUOTED(MINIGUI_BINARY_AGE, $MiniGUI_BINARY_AGE,
+            [Binary age of MiniGUI])
+
+dnl ========================================================================
+dnl Finally add some flags
+
+AC_ARG_WITH(osname,
+   [--with-osname=[linux/uclinux/ecos/ucos2/swlinux/vxworks/win32/darwin/threadx/cygwin/nucleus/ose/psos]])
+
+dnl configure.in file is used only for the following OSes: linux/uclinux/swlinux/ecos/darwin/cygwin
+dnl for other OSes, you should use makefile.ng or else.
+
+case "$with_osname" in
+  uclinux)
+    AC_DEFINE(__uClinux__, 1, 
+            [Define if compile for uClinux])
+    ;;
+  ecos)
+    AC_DEFINE(__ECOS__, 1, 
+            [Define if compile for eCos])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    ;;
+  ucos2)
+    AC_DEFINE(__UCOSII__, 1, 
+            [Define if compile for uC/OS-II])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    incore_res="yes"
+    use_own_malloc="yes"
+    use_own_stdio="yes"
+    use_own_pthread="yes"
+    ;;
+  swlinux)
+    AC_DEFINE(__WINBOND_SWLINUX__, 1, 
+                [Define if compile for Winbond SWLinux])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    ;;
+  vxworks)
+    AC_DEFINE(__VXWORKS__, 1, 
+            [Define if compile for VxWorks])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    ;;
+  cygwin)
+    AC_DEFINE(__CYGWIN__, 1, 
+            [Define if compile for Cygwin platform])
+    ;;
+  win32)
+    AC_DEFINE(WIN32, 1, 
+            [Define if compile for Win32 platform])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    ;;
+  darwin)
+    AC_DEFINE(__DARWIN__, 1, 
+            [Define if compile for OpenDarwin])
+    ;;
+  threadx)
+    AC_DEFINE(__THREADX__, 1, 
+            [Define if compile for ThreadX])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    incore_res="yes"
+    use_own_malloc="yes"
+    use_own_stdio="yes"
+    use_own_pthread="yes"
+    ;;
+  nucleus)
+    AC_DEFINE(__NUCLEUS__, 1, 
+            [Define if compile for Nucleus])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    incore_res="yes"
+    use_own_malloc="yes"
+    use_own_stdio="yes"
+    use_own_pthread="yes"
+    ;;
+  ose)
+    AC_DEFINE(__OSE__, 1, 
+            [Define if compile for OSE])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    incore_res="yes"
+    use_own_pthread="yes"
+    ;;
+  psos)
+    AC_DEFINE(__PSOS__, 1, 
+            [Define if compile for pSOS])
+    AC_DEFINE(__NOUNIX__, 1, 
+            [Define if compile for non-UNIX like OS])
+    ;;
+  *)
+    with_osname="linux"
+    AC_DEFINE(__LINUX__, 1, 
+            [Define if compile for Linux])
+    ;;
+esac
+
+AC_ARG_WITH(targetname,
+        [  --with-targetname=[unknown/stb810/vfanvil/vxi386/qvfb/fbcon/mx21/monaco/c33l05/bfin/vxppc/ipaq/mgdesktop]])
+
+case "$with_targetname" in
+  stb810)
+    AC_DEFINE(__TARGET_STB810__, 1, 
+            [Define for Philips STB810 target])
+    ;;
+  vfanvil)
+    AC_DEFINE(__TARGET_VFANVIL__, 1, 
+            [Define for VirualFone ANVIL target])
+    ;;
+  monaco)
+    AC_DEFINE(__TARGET_MONACO__, 1, 
+            [Define for Monaco ANVIL target])
+    ;;
+  mx21)
+    AC_DEFINE(__TARGET_MX21__, 1, 
+            [Define for OSE on mx21])
+    ;;
+  vxi386)
+    AC_DEFINE(__TARGET_VXI386__, 1, 
+            [Define for VxWorks on i386])
+    ;;
+  vxppc)
+    AC_DEFINE(__TARGET_PPC__, 1, 
+            [Define for VxWorks on PowerPC])
+    ;;
+  qvfb)
+    AC_DEFINE(__TARGET_QVFB__, 1, 
+            [Define for Linux QVFB (used by Shadow NEGAL engine)])
+    ;;
+  wvfb)
+    AC_DEFINE(__TARGET_WVFB__, 1,
+	    [Define for the Windows QVFB (used by Shadow NEGAL engine)])
+   ;; 
+  fbcon)
+    AC_DEFINE(__TARGET_FBCON__, 1,
+	    [Define for Linux FrameBuffer console (used by Shadow NEGAL engine)])
+   ;; 
+  bfin)
+    AC_DEFINE(__TARGET_BLACKFIN__, 1,
+	    [Define for Blackfin run uClinux])
+   ;; 
+  c33l05)
+    AC_DEFINE(__TARGET_C33L05__, 1,
+	    [Define for EPSON C33L05 (axLinux)])
+   ;; 
+  ipaq)
+    AC_DEFINE(__TARGET_IPAQ__, 1,
+	    [Define for iPAQ running Linux and eCos (internal use))])
+   ;; 
+  mgdesktop)
+    AC_DEFINE(__TARGET_MGDESKTOP__, 1,
+	    [Define for mGDesktop (internal use))])
+   ;; 
+  *)
+    with_targetname="unknown"
+    AC_DEFINE(__TARGET_UNKNOWN__, 1, 
+            [Define for unknown target])
+    ;;
+esac
+
+if test "x$use_own_malloc" = "xyes"; then
+  AC_DEFINE(_USE_OWN_MALLOC, 1, 
+            [Define if use own implementation of malloc functions])
+fi
+
+if test "x$use_own_stdio" = "xyes"; then
+  AC_DEFINE(_USE_OWN_STDIO, 1, 
+            [Define if use own implementation of stdio functions])
+fi
+
+if test "x$use_own_pthread" = "xyes"; then
+  AC_DEFINE(_USE_OWN_PTHREAD, 1, 
+            [Define if use own implementation of pthread functions])
+fi
+
+CFLAGS="$CFLAGS -D__MINIGUI_LIB__"
+
+if test "x$stand_alone" = "xyes"; then
+    procs_version="yes"
+fi
+
+if test "x$procs_version" = "xyes"; then
+    if test "x$stand_alone" = "xyes"; then
+  AC_DEFINE(_LITE_VERSION, 1, 
+            [Define if build MiniGUI-Standalone])
+  AC_DEFINE(_STAND_ALONE, 1,
+            [Define if build MiniGUI-Standalone])
+  AC_DEFINE(_MGRM_STANDALONE, 1, 
+            [Define if build MiniGUI-Standalone])
+    else
+  AC_DEFINE(_LITE_VERSION, 1, 
+            [Define if build MiniGUI-Processes])
+  AC_DEFINE(_MGRM_PROCESSES, 1, 
+            [Define if build MiniGUI-Processes])
+    fi
+else
+  AC_DEFINE(_MGRM_THREADS, 1, 
+            [Define if build MiniGUI-Threads])
+  CFLAGS="$CFLAGS -D_REENTRANT"
+fi
+
+if test "x$use_miniguientry" = "xyes"; then
+  AC_DEFINE(_USE_MINIGUIENTRY, 1,
+            [Define if use minigui_entry function in MiniGUI])
+fi
+
+if test "x$incore_res" = "xyes"; then
+  AC_DEFINE(_INCORE_RES, 1,
+            [Define if build MiniGUI for no file I/O system])
+  build_type1_support="no"
+  build_misc_aboutdlg="no"
+
+  if test "x$build_incorerbf_16" = "xyes"; then
+    AC_DEFINE(_INCORERBF_LATIN1_16, 1,
+            [Define if include in-core font: 8x16 fixed RBF for ISO8859-1])
+  fi
+
+  if test "x$build_incorerbf_24" = "xyes"; then
+    AC_DEFINE(_INCORERBF_LATIN1_24, 1,
+            [Define if include in-core font: 12x24 fixed RBF for ISO8859-1])
+  fi
+
+  if test "x$build_incorerbf_gb12" = "xyes"; then
+    AC_DEFINE(_INCORERBF_GB12, 1,
+            [Define if include in-core font: 12x12 fixed/song RBF for GB2312])
+  fi
+
+  if test "x$build_incorerbf_gb16" = "xyes"; then
+    AC_DEFINE(_INCORERBF_GB16, 1,
+            [Define if include in-core font: 16x16 fixed/song RBF for GB2312])
+  fi
+
+  if test "x$build_incorerbf_gb24" = "xyes"; then
+    AC_DEFINE(_INCORERBF_GB24, 1,
+            [Define if include in-core font: 24x24 fixed/song RBF for GB2312])
+  fi
+
+  if test "x$build_incorerbf_gb16_hei" = "xyes"; then
+    AC_DEFINE(_INCORERBF_GB16_HEI, 1,
+            [Define if include in-core font: 16x16 fixed/hei RBF for GB2312])
+  fi
+  if test "x$build_incorerbf_big12" = "xyes"; then
+    AC_DEFINE(_INCORERBF_BIG5_12, 1,
+            [Define if include in-core font: 12x12 fixed/ming RBF for BIG5])
+  fi
+
+  if test "x$build_incorerbf_big16" = "xyes"; then
+    AC_DEFINE(_INCORERBF_BIG5_16, 1,
+            [Define if include in-core font: 16x16 fixed/ming RBF for BIG5])
+  fi
+
+  if test "x$build_incorerbf_big24" = "xyes"; then
+    AC_DEFINE(_INCORERBF_BIG5_24, 1,
+            [Define if include in-core font: 24x24 fixed/ming RBF for BIG5])
+  fi
+
+  if test "x$build_incorerbf_kj12" = "xyes"; then
+    AC_DEFINE(_INCORERBF_KJ12, 1,
+            [Define if include in-core font: 12-Pixel Kanji RBFs for SHIFT-JIS])
+  fi
+
+  if test "x$build_incorerbf_kj14" = "xyes"; then
+    AC_DEFINE(_INCORERBF_KJ14, 1,
+            [Define if include in-core font: 14-Pixel Kanji RBFs for SHIFT-JIS])
+  fi
+
+  if test "x$build_incorerbf_kj16" = "xyes"; then
+    AC_DEFINE(_INCORERBF_KJ16, 1,
+            [Define if include in-core font: 16-Pixel Kanji RBFs for SHIFT-JIS])
+  fi
+
+fi
+
+no_math="no"
+AC_CHECK_LIB(m, pow, SYSTEM_LIBS="$SYSTEM_LIBS -lm", no_math="yes")
+
+if test "x$no_math" = "xno"; then
+    AC_DEFINE(_HAVE_MATH_LIB, 1,
+            [Define if have math library])
+fi
+
+if test "x$use_newgal" = "xyes"; then
+    fixed_math=yes
+
+    AC_DEFINE(_USE_NEWGAL, 1,
+            [Define if use new GAL interfaces])
+
+    if test "x$no_math" = "xyes"; then
+        build_adv2dapi="no"
+    fi
+
+    if test "x$build_adv2dapi" = "xyes"; then
+        AC_DEFINE(_ADV_2DAPI, 1,
+            [Define if include advanced 2D graphics APIs])
+    fi
+fi
+
+if test "x$fixed_math" = "xyes"; then
+    AC_DEFINE(_FIXED_MATH, 1,
+            [Define if include fixed math routines])
+fi
+
+if test "x$use_debug" = "xyes"; then
+    AC_DEFINE(_DEBUG, 1,
+            [Define if build with debugging messages])
+fi
+
+if test "x$trace_message" = "xyes"; then
+    message_string="yes"
+
+    AC_DEFINE(_TRACE_MSG, 1,
+            [Define if trace message dispatching of MiniGUI])
+fi
+
+if test "x$message_string" = "xyes"; then
+    AC_DEFINE(_MSG_STRING, 1, 
+            [Define if include messages' string names])
+fi
+
+    AC_DEFINE(_TIMER_UNIT_10MS, 1,
+                [Define if the unit of timer is 10ms])
+
+if test "x$move_window_by_mouse" = "xyes"; then
+    AC_DEFINE(_MOVE_WINDOW_BY_MOUSE, 1,
+            [Define if we can move window by mouse])
+fi
+
+AC_ARG_WITH(style,
+        [  --with-style=[classic/flat/fashion]])
+
+case "$with_style" in
+  flat)
+    AC_DEFINE(_FLAT_WINDOW_STYLE, 1, 
+            [Define if window style is flat])
+    with_gray_screen="yes"
+    ;;
+  fashion)
+    AC_DEFINE(_PHONE_WINDOW_STYLE, 1, 
+            [Define if window style is fashion])
+    ;;
+  *)
+    with_style=classic
+    AC_DEFINE(_PC3D_WINDOW_STYLE, 1, 
+            [Define if window style is classic])
+    ;;
+esac
+
+if test "x$double_click" = "xyes"; then
+    AC_DEFINE(_DOUBLE_CLICK, 1,
+            [Define if mouse button can do double click])
+fi
+
+if test "x$build_custom_ial_engine" = "xyes"; then
+    AC_DEFINE(_CUSTOM_IAL, 1,
+            [Define if include IAL engine for customer's board])
+fi
+
+if test "x$build_ep7211_ial_engine" = "xyes"; then
+    AC_DEFINE(_EP7211_IAL, 1,
+            [Define if include IAL engine for EP7211])
+fi
+
+if test "x$build_ads_ial_engine" = "xyes"; then
+    AC_DEFINE(_ADS_IAL, 1,
+            [Define if include IAL engine for ADS])
+fi
+
+if test "x$build_ipaq_ial_engine" = "xyes"; then
+    AC_DEFINE(_IPAQ_IAL, 1,
+            [Define if include IAL engine for iPAQ])
+fi
+
+if test "x$build_figueroa_ial_engine" = "xyes"; then
+    AC_DEFINE(_FIGUEROA_IAL, 1,
+            [Define if include IAL engine for FiguerOA])
+fi
+
+if test "x$build_l7200_ial_engine" = "xyes"; then
+    AC_DEFINE(_L7200_IAL, 1,
+            [Define if include IAL engine for L7200])
+fi
+
+if test "x$build_arm3000_ial_engine" = "xyes"; then
+    AC_DEFINE(_ARM3000_IAL, 1,
+            [Define if include IAL engine for ARM3000])
+fi
+
+if test "x$build_dm270_ial_engine" = "xyes"; then
+    AC_DEFINE(_DM270_IAL, 1,
+            [Define if include IAL engine for DM270])
+fi
+
+if test "x$build_evmv10_ial_engine" = "xyes"; then
+    AC_DEFINE(_EVMV10_IAL, 1,
+            [Define if include IAL engine for xScale EVMV 1.0])
+fi
+
+if test "x$build_fxrm9200_ial_engine" = "xyes"; then
+    AC_DEFINE(_FXRM9200_IAL, 1,
+            [Define if include IAL engine for FXRM9200])
+fi
+
+if test "x$build_abssig_ial_engine" = "xyes"; then
+    AC_DEFINE(_ABSSIG_IAL, 1,
+            [Define if include IAL engine for ABSSIG])
+fi
+
+if test "x$build_embest2410_ial_engine" = "xyes"; then
+    AC_DEFINE(_EMBEST2410_IAL, 1,
+            [Define if include IAL engine for EMBEST ARM2410])
+fi
+
+if test "x$build_embest44b0_ial_engine" = "xyes"; then
+    AC_DEFINE(_EMBEST44B0_IAL, 1,
+            [Define if include IAL engine for EMBEST ARM44B0])
+fi
+
+if test "x$build_fft7202_ial_engine" = "xyes"; then
+    AC_DEFINE(_FFT7202_IAL, 1,
+            [Define if include IAL engine for FFT7202])
+fi
+
+if test "x$build_palm2_ial_engine" = "xyes"; then
+    AC_DEFINE(_PALMII_IAL, 1,
+            [Define if include IAL engine for OKWAP Palm2])
+fi
+
+if test "x$build_mpc823_ial_engine" = "xyes"; then
+    AC_DEFINE(_MPC823_IAL, 1,
+            [Define if include IAL engine for MPC823])
+fi
+
+if test "x$build_ucb1x00_ial_engine" = "xyes"; then
+    AC_DEFINE(_UCB1X00_IAL, 1,
+            [Define if include IAL engine for UCB1X00])
+fi
+
+if test "x$bulid_px255b_ial_engine" = "xyes"; then
+    AC_DEFINE(_PX255B_IAL, 1,
+            [Define if include IAL engine for PX255B])
+fi
+
+if test "x$build_thor_ial_engine" = "xyes"; then
+    AC_DEFINE(_THOR_IAL, 1,
+            [Define if include IAL engine for THOR])
+fi
+
+if test "x$build_vr4181_ial_engine" = "xyes"; then
+    AC_DEFINE(_VR4181_IAL, 1,
+            [Define if include IAL engine for NEC VR4181])
+fi
+
+if test "x$build_helio_ial_engine" = "xyes"; then
+    AC_DEFINE(_HELIO_IAL, 1,
+            [Define if include IAL engine for Helio Touch Panel])
+fi
+
+if test "x$build_tfstb_ial_engine" = "xyes"; then
+    AC_DEFINE(_TFSTB_IAL, 1,
+            [Define if include IAL engine for Tongfang STB])
+fi
+
+if test "x$build_t800_ial_engine" = "xyes"; then
+    AC_DEFINE(_T800_IAL, 1,
+            [Define if include IAL engine for MT T800])
+fi
+
+if test "x$build_mc68x328_ial_engine" = "xyes"; then
+    AC_DEFINE(_MC68X328_IAL, 1,
+            [Define if include IAL engine for uClinux touch screen palm/mc68ez328])
+fi
+
+if test "x$build_smdk2410_ial_engine" = "xyes"; then
+    AC_DEFINE(_SMDK2410_IAL, 1,
+            [Define if include IAL engine for SMDK2410 touch screen])
+fi
+
+if test "x$build_hh2410r3_ial_engine" = "xyes"; then
+    AC_DEFINE(_HH2410R3_IAL, 1,
+            [Define if include IAL engine for HHARM2410R3 touch screen])
+fi
+
+if test "x$build_c33l05_ial_engine" = "xyes"; then
+    AC_DEFINE(_C33L05_IAL, 1,
+            [Define if include IAL engine for EPSONC33L05 touch screen])
+fi
+
+if test "x$build_hh2440_ial_engine" = "xyes"; then
+    AC_DEFINE(_HH2440_IAL, 1,
+            [Define if include IAL engine for HHARM2440 touch screen])
+fi
+
+if test "x$build_hh44b0_ial_engine" = "xyes"; then
+    AC_DEFINE(_HH44B0_IAL, 1,
+            [Define if include IAL engine for HHARM44B0 touch screen])
+fi
+
+if test "x$build_skyeyeep7312_ial_engine" = "xyes"; then
+    AC_DEFINE(_SKYEYE_EP7312_IAL, 1,
+            [Define if include IAL engine for touch screen of SkyEye EP7312 simulation])
+fi
+    
+if test "x$build_dmgstb_ial_engine" = "xyes"; then
+    AC_DEFINE(_DMGSTB_IAL, 1,
+            [Define if include IAL engine for Intel DMG STB Remote Controller])
+fi
+
+if test "x$build_fip_ial_engine" = "xyes"; then
+    AC_DEFINE(_FIP_IAL, 1,
+            [Define if include IAL engine for EM85xx Front Panel and Remote Controller])
+fi
+
+if test "x$build_svpxx_ial_engine" = "xyes"; then
+    AC_DEFINE(_SVPXX_IAL, 1,
+            [Define if include IAL engine for WinBond SPVXX])
+fi
+
+if test "x$build_ads7846_ial_engine" = "xyes"; then
+    AC_DEFINE(_ADS7846_IAL, 1,
+            [Define if include IAL engine for Arca Tpanel Ads7846])
+fi
+
+if test "x$build_dummy_ial_engine" = "xyes"; then
+    AC_DEFINE(_DUMMY_IAL, 1,
+            [Define if include the dummy IAL engine])
+fi
+
+if test "x$build_em8620_ial_engine" = "xyes"; then
+    AC_DEFINE(_EM8620_IAL, 1,
+            [Define if include the EM8620 IAL engine])
+fi
+
+if test "x$build_em86_ial_engine" = "xyes"; then
+    AC_DEFINE(_EM86_IAL, 1,
+            [Define if include the EM86xx IAL engine])
+fi
+
+if test "x$build_em85_ial_engine" = "xyes"; then
+    AC_DEFINE(_EM85_IAL, 1,
+            [Define if include the EM85xx IAL engine])
+fi
+
+if test "x$build_auto_ial_engine" = "xyes"; then
+    AC_DEFINE(_AUTO_IAL, 1,
+            [Define if include the automatic IAL engine])
+fi
+
+if test "x$build_random_ial_engine" = "xyes"; then
+    AC_DEFINE(_RANDOM_IAL, 1,
+            [Define if include the random IAL engine])
+fi
+
+if test "x$build_hhkbdir_ial_engine" = "xyes"; then
+    AC_DEFINE(_HH5249KBDIR_IAL, 1,
+            [Define if include the IAL engine for HHCF5249 PS/2 keyboard and IrDA])
+fi
+
+if test "x$build_comm_ial_engine" = "xyes"; then
+    AC_DEFINE(_COMM_IAL, 1,
+            [Define if include the common IAL engine])
+fi
+
+if test "x$build_qvfb_ial_engine" = "xyes"; then
+    AC_DEFINE(_QVFB_IAL, 1,
+            [Define if include the QVFB IAL engine])
+fi
+
+if test "x$build_wvfb_ial_engine" = "xyes"; then
+    AC_DEFINE(_WVFB_IAL, 1,
+            [Define if include the WVFB IAL engine])
+fi
+
+if test "x$build_utpmc_ial_engine" = "xyes"; then
+    AC_DEFINE(_UTPMC_IAL, 1,
+            [Define if include the UTPMC IAL engine])
+fi
+
+if test "x$with_coor_trans_cw" = "xyes"; then
+	AC_DEFINE(_COOR_TRANS, 1,
+            [Define if use coordinate transformation])
+	AC_DEFINE(_ROT_DIR_CW, 1,
+            [Define to 0 if use clockwise rotation of screen, otherwise to 1])
+fi
+
+if test "x$with_coor_trans_ccw" = "xyes"; then
+	AC_DEFINE(_COOR_TRANS, 1,
+            [Define if use coordinate transformation])
+	AC_DEFINE(_ROT_DIR_CW, 0,
+            [Define to 0 if use clockwise rotation of screen, otherwise to 1])
+fi
+
+if test "x$build_native_ial_engine" = "xyes"; then
+    AC_DEFINE(_NATIVE_IAL_ENGINE, 1,
+            [Define if include native (Linux console) IAL engine])
+fi
+
+if test "x$build_native_ps2" = "xyes"; then
+    AC_DEFINE(_PS2_SUPPORT, 1,
+            [Define if include PS2 mouse subdriver])
+fi
+
+if test "x$build_native_imps2" = "xyes"; then
+    AC_DEFINE(_IMPS2_SUPPORT, 1,
+            [Define if include IMPS2 mouse subdriver])
+fi
+
+if test "x$build_native_ms" = "xyes"; then
+    AC_DEFINE(_MS_SUPPORT, 1,
+            [Define if include MS mouse subdriver])
+fi
+
+if test "x$build_native_ms3" = "xyes"; then
+    AC_DEFINE(_MS3_SUPPORT, 1,
+            [Define if include MS3 mouse subdriver])
+fi
+
+if test "x$build_native_gpm" = "xyes"; then
+    AC_DEFINE(_GPM_SUPPORT, 1,
+            [Define if include GPM mouse subdriver])
+fi
+
+if test "x$build_text_mode" = "xyes"; then
+    AC_DEFINE(_HAVE_TEXT_MODE, 1,
+            [Define if your Linux have text mode])
+fi
+
+if test "x$build_dfb_ial_engine" = "xyes"; then
+    AC_DEFINE(_DFB_IAL, 1,
+            [Define if include IAL engine for DirectFB])
+fi
+
+if test "x$build_hi3510_ial_engine" = "xyes"; then
+    AC_DEFINE(_HI3510_IAL, 1,
+            [Define if include the HI3510 IAL engine])
+fi
+
+if test "x$build_cursor_support" = "xyes"; then
+    AC_DEFINE(_CURSOR_SUPPORT, 1,
+            [Define if include cursor support])
+fi
+
+if test "x$build_clipboard" = "xyes"; then
+    AC_DEFINE(_CLIPBOARD_SUPPORT, 1,
+            [Define if include clipboard support])
+fi
+
+if test "x$build_rbf_support" = "xyes"; then
+    AC_DEFINE(_RBF_SUPPORT, 1,
+            [Define if support raw bitmap fonts])
+fi
+
+if test "x$build_vbf_support" = "xyes"; then
+    AC_DEFINE(_VBF_SUPPORT, 1,
+            [Define if support var bitmap fonts])
+
+  if test "x$build_incorefont_sansserif" = "xyes"; then
+    AC_DEFINE(_INCOREFONT_SANSSERIF, 1,
+            [Define if include in-core font: SansSerif])
+  fi
+
+  if test "x$build_incorefont_courier" = "xyes"; then
+    AC_DEFINE(_INCOREFONT_COURIER, 1,
+            [Define if include in-core font: Courier])
+  fi
+
+  if test "x$build_incorefont_symbol" = "xyes"; then
+    AC_DEFINE(_INCOREFONT_SYMBOL, 1,
+            [Define if include in-core font: Symbol])
+  fi
+
+  if test "x$build_incorefont_vgas" = "xyes"; then
+    AC_DEFINE(_INCOREFONT_VGAS, 1,
+            [Define if include in-core font: VGAS])
+  fi
+
+  if test "x$build_incorefont_helv" = "xyes"; then
+    AC_DEFINE(_INCOREFONT_HELV, 1,
+            [Define if include in-core font: Helvetica])
+  fi
+
+fi
+
+if test "x$build_qpf_support" = "xyes"; then
+
+    build_unicode_support="yes"
+
+    AC_DEFINE(_QPF_SUPPORT, 1,
+            [Define if support QPF font])
+fi
+
+if test "x$build_ft2_support" != "xno"; then
+    build_unicode_support="yes"
+
+    AC_DEFINE(_FT2_SUPPORT, 1,
+             [Define if support TrueType font based on FreeType2])
+else
+    if test "x$build_ttf_support" = "xyes"; then
+
+        build_unicode_support="yes"
+
+        AC_DEFINE(_TTF_SUPPORT, 1,
+                 [Define if support TrueType font])
+
+        if test "x$build_ttfcache_support" = "xyes"; then
+            AC_DEFINE(_TTF_CACHE_SUPPORT, 1,
+                    [Define if include ttf cache])
+
+            AC_ARG_WITH(ttfcachesize,
+               [--with-ttfcachesize=[64/128/256/512/1024]])
+            case "$with_ttfcachesize" in
+              64)
+                AC_DEFINE(_TTF_CACHE_SIZE, 64, 
+                        [Define if compile max ttf cahce size for 64k])
+              ;;
+              128)
+                AC_DEFINE(_TTF_CACHE_SIZE, 128, 
+                        [Define if compile max ttf cahce size for 128k])
+              ;;
+              256)
+                AC_DEFINE(_TTF_CACHE_SIZE, 256, 
+                        [Define if compile max ttf cahce size for 256k])
+              ;;
+              512)
+                AC_DEFINE(_TTF_CACHE_SIZE, 512, 
+                        [Define if compile max ttf cahce size for 512k])
+              ;;
+              1024)
+                AC_DEFINE(_TTF_CACHE_SIZE, 1024, 
+                        [Define if compile max ttf cahce size for 1024k])
+              ;;
+              default)
+                AC_DEFINE(_TTF_CACHE_SIZE, 64, 
+                        [Define if compile max ttf cahce size for 64k])
+              ;;
+            esac
+
+            AC_ARG_WITH(ttfcachenum,
+               [--with-mttfcachenum=[10/20/40]])
+            case "$with_mttfcachenum" in
+              10)
+                AC_DEFINE(_MAX_TTF_CACHE, 10, 
+                        [Define if compile max ttf cahce number for 10])
+              ;;
+              20)
+                AC_DEFINE(_MAX_TTF_CACHE, 20, 
+                        [Define if compile max ttf cahce number for 20])
+              ;;
+              40)
+                AC_DEFINE(_MAX_TTF_CACHE, 40, 
+                        [Define if compile max ttf cahce number for 40])
+              ;;
+              default)
+                AC_DEFINE(_MAX_TTF_CACHE, 10, 
+                        [Define if compile max ttf cahce number for 10 (default value)])
+              ;;
+            esac
+
+            dnl default value setting.
+            AC_DEFINE(_MAX_TTF_CACHE, 10, 
+                    [Define if compile max ttf cahce number for 10 (default value)])
+
+            AC_DEFINE(_TTF_CACHE_SIZE, 64, 
+                    [Define if compile max ttf cahce size for 64k in KB])
+
+        fi
+    fi
+fi
+
+if test "x$build_type1_support" = "xyes"; then
+    AC_DEFINE(_TYPE1_SUPPORT, 1,
+            [Define if support Adobe Type1 fonts])
+fi
+
+if test "x$build_latin2_support" = "xyes"; then
+    AC_DEFINE(_LATIN2_SUPPORT, 1,
+            [Define if support Latin 2 charset])
+fi
+
+if test "x$build_latin3_support" = "xyes"; then
+    AC_DEFINE(_LATIN3_SUPPORT, 1,
+            [Define if support Latin 3 charset])
+fi
+
+if test "x$build_latin4_support" = "xyes"; then
+    AC_DEFINE(_LATIN4_SUPPORT, 1,
+            [Define if support Latin 4 charset])
+fi
+
+if test "x$build_cyrillic_support" = "xyes"; then
+    AC_DEFINE(_CYRILLIC_SUPPORT, 1,
+            [Define if support Cyrillic charset])
+fi
+
+if test "x$build_arabic_support" = "xyes"; then
+    AC_DEFINE(_ARABIC_SUPPORT, 1,
+            [Define if support Arabic charset])
+fi
+
+if test "x$build_greek_support" = "xyes"; then
+    AC_DEFINE(_GREEK_SUPPORT, 1,
+            [Define if support Greek charset])
+fi
+
+if test "x$build_hebrew_support" = "xyes"; then
+    AC_DEFINE(_HEBREW_SUPPORT, 1,
+            [Define if support Hebrew charset])
+fi
+
+if test "x$build_latin5_support" = "xyes"; then
+    AC_DEFINE(_LATIN5_SUPPORT, 1,
+            [Define if support Latin 5 charset])
+fi
+
+if test "x$build_latin6_support" = "xyes"; then
+    AC_DEFINE(_LATIN6_SUPPORT, 1,
+            [Define if support Latin 6 charset])
+fi
+
+if test "x$build_thai_support" = "xyes"; then
+    AC_DEFINE(_THAI_SUPPORT, 1,
+            [Define if support Thai charset])
+fi
+
+if test "x$build_latin7_support" = "xyes"; then
+    AC_DEFINE(_LATIN7_SUPPORT, 1,
+            [Define if support Latin 7 charset])
+fi
+
+if test "x$build_latin8_support" = "xyes"; then
+    AC_DEFINE(_LATIN8_SUPPORT, 1,
+            [Define if support Latin 8 charset])
+fi
+
+if test "x$build_latin9_support" = "xyes"; then
+    AC_DEFINE(_LATIN9_SUPPORT, 1,
+            [Define if support Latin 9 charset])
+fi
+
+if test "x$build_latin10_support" = "xyes"; then
+    AC_DEFINE(_LATIN10_SUPPORT, 1,
+            [Define if support Latin 10 charset])
+fi
+
+if test "x$build_gb_support" = "xyes"; then
+    AC_DEFINE(_GB_SUPPORT, 1,
+            [Define if support GB2312 charset])
+fi
+
+if test "x$build_gbk_support" = "xyes"; then
+    AC_DEFINE(_GBK_SUPPORT, 1,
+            [Define if support GBK charset])
+fi
+
+if test "x$build_gb18030_support" = "xyes"; then
+    AC_DEFINE(_GB18030_SUPPORT, 1,
+            [Define if support GB18030 charset])
+fi
+
+if test "x$build_big5_support" = "xyes"; then
+    AC_DEFINE(_BIG5_SUPPORT, 1,
+            [Define if support BIG5 charset])
+fi
+
+if test "x$build_euckr_support" = "xyes"; then
+    AC_DEFINE(_EUCKR_SUPPORT, 1,
+            [Define if support EUCKR charset])
+fi
+
+if test "x$build_eucjp_support" = "xyes"; then
+    AC_DEFINE(_EUCJP_SUPPORT, 1,
+            [Define if support EUCJP charset])
+fi
+
+if test "x$build_shiftjis_support" = "xyes"; then
+    AC_DEFINE(_SHIFTJIS_SUPPORT, 1,
+            [Define if support SHIFTJIS charset])
+fi
+
+if test "x$build_unicode_support" = "xyes"; then
+    AC_DEFINE(_UNICODE_SUPPORT, 1,
+            [Define if support UNICODE])
+fi
+
+if test "x$use_kbd_frpc" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_FRPC, 1,
+            [Define if use the French PC keyboard layout])
+fi
+
+if test "x$use_kbd_fr" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_FR, 1,
+            [Define if use the French keyboard layout])
+fi
+
+if test "x$use_kbd_de" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_DE, 1,
+            [Define if use the German keyboard layout])
+fi
+
+if test "x$use_kbd_delatin1" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_DELATIN1, 1,
+            [Define if use the German-Latin1 keyboard layout])
+fi
+
+if test "x$use_kbd_it" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_IT, 1,
+            [Define if use the Italian keyboard layout])
+fi
+
+if test "x$use_kbd_es" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_ES, 1,
+            [Define if use the Spanish keyboard layout])
+fi
+
+if test "x$use_kbd_escp850" = "xyes"; then
+    AC_DEFINE(_KBD_LAYOUT_ESCP850, 1,
+            [Define if use the Spanish CP850 keyboard layout])
+fi
+
+if test "x$build_save_bitmap" = "xyes"; then
+    AC_DEFINE(_SAVE_BITMAP, 1,
+            [Define if include SaveBitmap function])
+else
+    build_misc_savescreen="no"
+fi
+
+if test "x$build_pcx_support" = "xyes"; then
+    AC_DEFINE(_PCX_FILE_SUPPORT, 1,
+            [Define if support PCX bmp file format])
+fi
+
+if test "x$build_lbm_support" = "xyes"; then
+    AC_DEFINE(_LBM_FILE_SUPPORT, 1,
+            [Define if support LBM bmp file format])
+fi
+
+if test "x$build_tga_support" = "xyes"; then
+    AC_DEFINE(_TGA_FILE_SUPPORT, 1,
+            [Define if support TGA bmp file format])
+fi
+
+if test "x$build_gif_support" = "xyes"; then
+    AC_DEFINE(_GIF_FILE_SUPPORT, 1,
+            [Define if support GIF bmp file format])
+fi
+
+if test "x$build_jpg_support" = "xyes"; then
+    AC_DEFINE(_JPG_FILE_SUPPORT, 1,
+            [Define if support JPEG bmp file format])
+fi
+
+if test "x$build_png_support" = "xyes"; then
+    AC_DEFINE(_PNG_FILE_SUPPORT, 1,
+            [Define if support PNG bmp file format])
+fi
+
+if test "x$build_ime_gb2312" = "xyes"; then
+    AC_DEFINE(_IME_GB2312, 1,
+            [Define if include GB2312 IME])
+  if test "x$build_ime_gb2312_pinyin" = "xyes"; then
+    AC_DEFINE(_IME_GB2312_PINYIN, 1,
+            [Define if include GB2312 Intelligent Pinyin IME module])
+  fi
+else
+    build_ime_gb2312_pinyin=no
+fi
+
+if test "x$build_misc_mousecalibrate" = "xyes"; then
+    AC_DEFINE(_MISC_MOUSECALIBRATE, 1,
+            [Define if include code for mouse calibration])
+fi
+
+if test "x$build_misc_aboutdlg" = "xyes"; then
+  if test "x$build_ctrl_button" = "xyes"; then
+    AC_DEFINE(_MISC_ABOUTDLG, 1,
+            [Define if include About MiniGUI Dialog Box])
+  fi
+fi
+
+if test "x$build_misc_savescreen" = "xyes"; then
+    AC_DEFINE(_MISC_SAVESCREEN, 1,
+            [Define if include code for screenshots])
+fi
+
+if test "x$build_ctrl_static" = "xyes"; then
+    AC_DEFINE(_CTRL_STATIC, 1,
+            [Define if include STATIC control])
+fi
+
+if test "x$build_ctrl_button" = "xyes"; then
+    AC_DEFINE(_CTRL_BUTTON, 1,
+            [Define if include BUTTON control])
+fi
+
+if test "x$build_ctrl_simedit" = "xyes"; then
+    AC_DEFINE(_CTRL_SIMEDIT, 1,
+            [Define if include SIMEDIT control])
+fi
+
+if test "x$build_ctrl_sledit" = "xyes"; then
+    AC_DEFINE(_CTRL_SLEDIT, 1,
+            [Define if include SLEDIT control])
+fi
+
+if test "x$build_ctrl_listbox" = "xyes"; then
+    AC_DEFINE(_CTRL_LISTBOX, 1,
+            [Define if include LISTBOX control])
+fi
+
+if test "x$build_ctrl_progressbar" = "xyes"; then
+    AC_DEFINE(_CTRL_PROGRESSBAR, 1,
+            [Define if include PROGRESSBAR control])
+fi
+
+if test "x$build_ctrl_toolbar" = "xyes"; then
+    AC_DEFINE(_CTRL_TOOLBAR, 1,
+            [Define if include TOOLBAR control])
+fi
+
+if test "x$build_ctrl_newtoolbar" = "xyes"; then
+    AC_DEFINE(_CTRL_NEWTOOLBAR, 1,
+            [Define if include NEWTOOLBAR control])
+fi
+
+if test "x$build_ctrl_menubutton" = "xyes"; then
+    AC_DEFINE(_CTRL_MENUBUTTON, 1,
+            [Define if include MENUBUTTON control])
+fi
+
+if test "x$build_ctrl_trackbar" = "xyes"; then
+    AC_DEFINE(_CTRL_TRACKBAR, 1,
+            [Define if include TRACKBAR control])
+fi
+
+if test "x$build_ctrl_combobox" = "xyes"; then
+    AC_DEFINE(_CTRL_COMBOBOX, 1,
+            [Define if include COMBOBOX control])
+fi
+
+if test "x$build_ctrl_propsheet" = "xyes"; then
+    AC_DEFINE(_CTRL_PROPSHEET, 1,
+            [Define if include PROPSHEET control])
+fi
+
+if test "x$build_ctrl_scrollview" = "xyes"; then
+    AC_DEFINE(_CTRL_SCROLLVIEW, 1,
+            [Define if include SCROLLVIEW control])
+fi
+
+if test "x$build_ctrl_textedit" = "xyes"; then
+    AC_DEFINE(_CTRL_TEXTEDIT, 1,
+            [Define if include TEXTEDIT control])
+fi
+
+if test "x$build_ext_ctrl_monthcal" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_MONTHCAL, 1,
+            [Define if include MONTHCALENDAR control])
+fi
+
+if test "x$build_ext_ctrl_treeview" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_TREEVIEW, 1,
+            [Define if include TREEVIEW control])
+fi
+
+if test "x$build_ext_ctrl_spinbox" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_SPINBOX, 1,
+            [Define if include SPINBOX control])
+fi
+
+if test "x$build_ext_ctrl_coolbar" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_COOLBAR, 1,
+            [Define if include COOLBAR control])
+fi
+
+if test "x$build_ext_ctrl_listview" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_LISTVIEW, 1,
+            [Define if include LISTVIEW control])
+fi
+
+if test "x$build_ext_ctrl_gridview" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_GRIDVIEW, 1,
+            [Define if include GRIDVIEW control])
+fi
+
+if test "x$build_ext_ctrl_iconview" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_ICONVIEW, 1,
+            [Define if include ICONVIEW control])
+fi
+
+if test "x$build_ext_ctrl_animation" = "xyes"; then
+    AC_DEFINE(_EXT_CTRL_ANIMATION, 1,
+            [Define if include ANIMATION control])
+fi
+
+if test "x$build_ext_skin" = "xyes"; then
+    AC_DEFINE(_EXT_SKIN, 1,
+            [Define if include skin support])
+fi
+
+if test "x$build_libvcongui" = "xyes"; then
+    AC_DEFINE(_LIB_VCONGUI, 1,
+            [Define if include vcongui support])
+fi
+
+if test "x$with_gray_screen" = "xyes"; then
+    AC_DEFINE(_GRAY_SCREEN, 1,
+            [Define if is gray screen])
+fi
+
+if test "x$tiny_screen_size" = "xyes"; then
+    AC_DEFINE(_TINY_SCREEN, 1,
+            [Define if it is tiny screen])
+fi
+
+if test "x$with_fixed_barlen" = "xyes"; then
+    AC_DEFINE(_USE_FIXED_SB_BARLEN, 1,
+            [Define if use fixed scrollbar bar length])
+fi
+
+if test "$ac_cv_prog_gcc" = "yes"; then
+    CFLAGS="$CFLAGS -Wall -Wstrict-prototypes -pipe"
+fi
+
+
+dnl ========================================================================
+dnl Write output
+ 
+AC_SUBST(VIDEO_SUBDIRS)
+AC_SUBST(VIDEO_DRIVERS)
+AC_SUBST(SYSTEM_LIBS)
+
+AM_CONDITIONAL(LITE_VERSION, test "x$procs_version" = "xyes")
+AM_CONDITIONAL(STAND_ALONE, test "x$stand_alone" = "xyes")
+AM_CONDITIONAL(USE_NEWGAL, test "x$use_newgal" = "xyes")
+AM_CONDITIONAL(NATIVE_IAL_ENGINE, test "x$build_native_ial_engine" = "xyes")
+AM_CONDITIONAL(ABSSIG_IAL_ENGINE, test "x$build_abssig_ial_engine" = "xyes")
+AM_CONDITIONAL(IME_GB2312_SUPPORT, test "x$build_ime_gb2312" = "xyes")
+AM_CONDITIONAL(IME_GB2312_PINYIN_SUPPORT, test "x$build_ime_gb2312_pinyin" = "xyes")
+AM_CONDITIONAL(LIB_VCONGUI, test "x$build_libvcongui" = "xyes")
+AM_CONDITIONAL(UCOSII, test "x$with_osname" = "xucos2")
+AM_CONDITIONAL(USE_OWN_PTHREAD, test "x$use_own_pthread" = "xyes")
+
+if test "x$with_osname" = "xucos2"; then
+AC_CONFIG_FILES(
+    include/pthread.h:include/ucos2_pthread.h
+    include/semaphore.h:include/ucos2_semaphore.h)
+fi
+
+AM_CONDITIONAL(PC3D_WINDOW_STYLE, test "x$with_style" = "xclassic")
+AM_CONDITIONAL(FLAT_WINDOW_STYLE, test "x$with_style" = "xflat")
+AM_CONDITIONAL(PHONE_WINDOW_STYLE, test "x$with_style" = "xfashion")
+
+AC_OUTPUT(
+Makefile
+src/Makefile
+src/control/Makefile
+src/font/Makefile
+src/font/in-core/Makefile
+src/newgal/Makefile
+src/newgal/fbcon/Makefile
+src/newgal/qvfb/Makefile
+src/newgal/commlcd/Makefile
+src/newgal/shadow/Makefile
+src/newgal/dummy/Makefile
+src/ial/Makefile
+src/ial/native/Makefile
+src/mybmp/Makefile
+src/newgdi/Makefile
+src/gui/Makefile
+src/misc/Makefile
+src/main/Makefile
+src/kernel/Makefile
+src/sysres/Makefile
+src/include/Makefile
+src/include/control/Makefile
+ext/Makefile
+ext/control/Makefile
+ext/mywins/Makefile
+ext/skin/Makefile
+ext/include/Makefile
+ext/include/ext/Makefile
+ext/res/Makefile
+vcongui/Makefile
+include/Makefile
+include/ctrl/Makefile
+etc/Makefile
+m4/Makefile
+)
+

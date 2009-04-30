@@ -1,0 +1,132 @@
+2008/07/30
+    Release MiniGUI GPL version 1.6.10.
+
+2007/11/30
+    Release MiniGUI version 2.0.4/1.6.10.
+
+2006/06/30
+    Release MiniGUI version 2.0.3 and 1.6.9.
+
+2005/10/31
+    Release MiniGUI-VAR for Linux V2.0.2.
+
+2005/09/05
+    The branch dev-2-0-0 merged to the main branch.
+
+2005/09/05
+    The MiniGUI Version 1.6.8 released!
+
+2005/09/02
+    The branch ver-1-6-8 merged to the main branch.
+
+2005/08/12
+    MiniGUI developing branch for version 2.0.0 "dev-2-0-0" created.
+
+2005/08/11
+    MiniGUI version 1.6.8 test branch created.
+
+2005/01/31
+    MiniGUI version 1.6.1 released.
+
+2004/10/01
+    MiniGUI version 1.6.0 released.
+
+2004/08/18
+    MiniGUI version 1.6.0-Beta released.
+
+2004/08/03
+    MiniGUI version 1.6.0 frozen.
+
+2004/04/31
+    MiniGUI version 1.5.3 released.
+
+2004/04/01
+    Merge the phone-style branch.
+    Note that you should use the new minigui-res-1.5.tar.gz tarball.
+
+2004/02/25
+    Merge the ver-1-5-ucos2 branch.
+    MiniGUI has been a cross-platform GUI support system.
+
+2003/12/11:
+    Merge the ver-1-5 branch.
+
+2003/12/11:
+    The branch of ver-1-3-patches created.
+
+2003/11/20:
+    Branch for MiniGUI version 1.5.x created.
+
+2003/09/11:
+    MiniGUI version 1.3.0 released.
+
+2003/08/15:
+    MiniGUI for uClinux version can run on Xcopilot.
+
+2003/08/01:
+    We change the license from LGPL to GPL.
+
+2003/07/03:
+    A new Value-added Release of MiniGUI -- version 1.2.6-var.
+
+2003/05/18:
+    A new stable release of MiniGUI -- version 1.2.6.
+
+2002/09/25:
+    The main developers of MiniGUI found a new software corporation: 
+    Beijing Feynman Software Technology Co., Ltd. And the development 
+    and maintenance of MiniGUI changes from loosely-knit team to 
+    business organization.
+
+2002/07/28:
+    The optimized and tuned MiniGUI official version 1.2.2 released.
+
+2002/04/11:
+    The MiniGUI official version 1.2.0 released.
+
+2002/03/27:
+    The MiniGUI API Reference version 1.0 released.
+
+2002/03/08:
+    The official release of MiniGUI version 1.1.0 released.
+
+2002/01/22:
+    The last preview release of MiniGUI version 1.1.0 released.
+
+2001/11/02:
+    All new GDI APIs almost have been done in version 1.1.0Pre5.
+
+2001/10/22:
+    Version 1.1.0Pre4 with new GAL and GDI APIs released.
+
+2001/09/24:
+    Version 1.1.0Pre2 with standard VGA16 support released.
+
+2001/09/16:
+    Branch 1.1.x merged to main branch and a new branch created for 
+    MiniGUI version 1.0.x. 
+
+2001/09/12:
+    A new branch created for MiniGUI version 1.1.x, and version 1.1.0Pre1
+    released.
+
+2001/08/10:
+    We create a new forum about embedded Linux and MiniGUI on minigui.org:
+    http://www.minigui.org/cgi-bin/lb5000/leoboard.cgi.
+
+2001/08/08:
+    New mailing lists have been create on sourceforge.net. They are 
+    minigui-devel@lists.sourceforge.net, minigui-users@lists.sourceforge.net,
+    and minigui-announce@lists.sourceforge.net. 
+    DO NOT use minigui@yahoogroups.com.
+
+2001/08/07:
+    Our WWW site has been moved to zixia.net. The forum about emdedded Linux
+    and FTP site on www.minigui.org closed tempororily. However, our new 
+    mailing list (minigui@yahoogroups.com) can be used to discuss problems.
+
+2001/04/16:
+    This is a great day due to the official release of MiniGUI Version 1.0.00.
+    *NOTE* this release will use the new minigui-res tarball.
+    Please download the latest minigui-res-1.0.xx.tar.gz from our FTP/HTTP site.
+

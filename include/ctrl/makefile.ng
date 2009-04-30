@@ -1,0 +1,10 @@
+# Makefile defines for building the MiniGUI DLL with Microsoft VC
+
+SUBINC=1
+
+include Makefile.am
+include ../../rules.make
+
+install::
+	@for i in $(libminiguiinclude_HEADERS); do $(CP) $$i $(libminiguiincludedir)/ctrl/; done
+

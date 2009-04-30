@@ -1,0 +1,30 @@
+# Makefile for building the libmgext headers with Microsoft Visual C++ 
+#     compiler and nmake
+# Use: nmake -f makefile.msvc install
+
+TOPINCALL=1
+
+################################################################
+
+include Makefile.am
+
+SUB_DIRS = $(SUBDIRS)
+
+################################################################
+# includes common defines
+
+!INCLUDE ..\..\build\Defs.win32
+!INCLUDE ..\..\build\makedefs.msvc
+
+################################################################
+# specific targets and commands
+
+install::
+	@for %d in ($(COMM_HDRS)) do $(CP) %d $(libminiguiincludedir)\
+
+installdirs : force
+	@-mkdir $(prefix)
+	@-mkdir $(includedir)
+	@-mkdir $(libminiguiincludedir)
+	@-mkdir $(libminiguiincludedir)\ext
+

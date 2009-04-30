@@ -1,0 +1,14 @@
+# Makefile defines for building the MiniGUI DLL with Microsoft VC
+
+SUBINC=1
+
+include Makefile.am
+
+include $(TOP_DIR)/build/Defs-mgext.win32
+include $(TOP_DIR)/build/Defs.win32
+include $(TOP_DIR)/rules.make
+
+
+install::
+	@for i in $(libmgextinclude_HEADERS); do $(CP) $$i $(libmgextincludedir)/ext/; done
+

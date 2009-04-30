@@ -1,0 +1,32 @@
+# Makefile for building the libmgext headers with
+#     GNU Make
+# Use: make -f makefile.ng install
+
+TOPINCALL=1
+TOPLOOP=1
+
+################################################################
+
+include Makefile.am
+
+SUB_DIRS = $(SUBDIRS)
+
+################################################################
+# includes common defines
+
+include $(TOP_DIR)/build/Defs-mgext.win32
+include $(TOP_DIR)/build/Defs.win32
+include $(TOP_DIR)/rules.make
+
+################################################################
+# specific targets and commands
+
+install::
+	@for i in $(COMM_HDRS); do $(CP) $$i $(libminiguiincludedir)/; done
+
+installdirs : force
+	@-mkdir $(prefix)
+	@-mkdir $(includedir)
+	@-mkdir $(libminiguiincludedir)
+	@-mkdir $(libminiguiincludedir)/ext
+
