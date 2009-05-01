@@ -4,7 +4,13 @@
 *.la
 *.lo
 .deps
-Makefile
+*.libs
+*~
 
+# Files produced by autoconf 
 
+autom4te.cache
+config.log
+config.status
+stamp-h1
 
