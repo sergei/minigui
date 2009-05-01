@@ -131,6 +131,7 @@ build_dmgstb_ial_engine="no"
 build_fip_ial_engine="no"
 build_svpxx_ial_engine="no"
 build_ads7846_ial_engine="no"
+build_tomtomts_ial_engine="no"
 build_dummy_ial_engine="yes"
 build_em8620_ial_engine="no"
 build_em86_ial_engine="no"
@@ -152,7 +153,7 @@ build_native_imps2="yes"
 build_native_ms="yes"
 build_native_ms3="yes"
 build_native_gpm="yes"
-build_text_mode="yes"
+build_text_mode="no"
 build_dfb_ial_engine="no"
 build_hi3510_ial_engine="no"
 
@@ -343,6 +344,10 @@ build_custom_ial_engine=$enableval)
 AC_ARG_ENABLE(ipaqial,
 [  --enable-ipaqial         build the IAL engine for iPAQ H3600 <default=no>],
 build_ipaq_ial_engine=$enableval)
+
+AC_ARG_ENABLE(tomtomtsial,
+[  --enable-tomtomtsial     build the input engine for TOMTOM touch screen <default=no>],
+build_tomtomts_ial_engine=$enableval)
 
 AC_ARG_ENABLE(dummyial,
 [  --enable-dummyial        build the Dummy IAL engine <default=yes>],
@@ -1514,6 +1519,11 @@ fi
 if test "x$build_ads7846_ial_engine" = "xyes"; then
     AC_DEFINE(_ADS7846_IAL, 1,
             [Define if include IAL engine for Arca Tpanel Ads7846])
+fi
+
+if test "x$build_tomtomts_ial_engine" = "xyes"; then
+    AC_DEFINE(_TOMTOM_TS_IAL, 1,
+            [Define if include IAL engine for TOMTOM touch screen])
 fi
 
 if test "x$build_dummy_ial_engine" = "xyes"; then

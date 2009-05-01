@@ -51,7 +51,7 @@
 #define HAVE_MKTIME 1
 
 /* Define to 1 if you have a working `mmap' system call. */
-#define HAVE_MMAP 1
+/* #undef HAVE_MMAP */
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 /* #undef HAVE_NDIR_H */
@@ -368,7 +368,7 @@
 #define _HAVE_MATH_LIB 1
 
 /* Define if your Linux have text mode */
-#define _HAVE_TEXT_MODE 1
+/* #undef _HAVE_TEXT_MODE */
 
 /* Define if support Hebrew charset */
 /* #undef _HEBREW_SUPPORT */
@@ -458,7 +458,7 @@
 /* #undef _IPAQ_IAL */
 
 /* Define if support JPEG bmp file format */
-#define _JPG_FILE_SUPPORT 1
+/* #undef _JPG_FILE_SUPPORT */
 
 /* Define if use the German keyboard layout */
 /* #undef _KBD_LAYOUT_DE */
@@ -626,7 +626,7 @@
 /* #undef _PHONE_WINDOW_STYLE */
 
 /* Define if support PNG bmp file format */
-#define _PNG_FILE_SUPPORT 1
+/* #undef _PNG_FILE_SUPPORT */
 
 /* Define if include PS2 mouse subdriver */
 #define _PS2_SUPPORT 1
@@ -688,6 +688,9 @@
 
 /* Define if it is tiny screen */
 /* #undef _TINY_SCREEN */
+
+/* Define if include IAL engine for TOMTOM touch screen */
+#define _TOMTOM_TS_IAL 1
 
 /* Define if trace message dispatching of MiniGUI */
 /* #undef _TRACE_MSG */

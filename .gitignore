@@ -6,6 +6,8 @@
 .deps
 *.libs
 *~
+Makefile
+libtool
 
 # Files produced by autoconf 
 

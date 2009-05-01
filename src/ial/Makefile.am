@@ -56,9 +56,10 @@ HH5249KBDIR_SRCS = hh5249kbdir.c hh5249kbdir.h ps2-keycode.h ps2-conv.c
 UTPMC_SRCS = utpmc.c utpmc.h
 FFT7202_SRCS = fft7202.c fft7202.h
 FXRM9200_SRCS = fxrm9200.c fxrm9200.h
+TOMTOM_TS_SRCS = ial_tomtom_ts.c ial_tomtom_ts.h
 SKYEYE_EP7312_SRCS = skyeye-ep7312.c skyeye-ep7312.h
 FIGUER_SRCS = figueroa.c figueroa.h
-HI3510_SRCS = hi3510.c hi3510.h
+HI3510_SRCS = hi3510.c i3510.h
 
 if NATIVE_IAL_ENGINE
 libial_la_LIBADD = native/libnative.la
@@ -82,7 +83,7 @@ libial_la_SOURCES = $(COMMON_SRCS) $(DUMMY_SRCS) $(AUTO_SRCS) $(RANDOM_SRCS) $(C
                     $(EMBEST44B0_SRCS) $(SVPXX_SRCS) \
                     $(EMBEST2410_SRCS) $(ADS7846_SRCS) $(HH5249KBDIR_SRCS) \
                     $(UTPMC_SRCS) $(FFT7202_SRCS) $(DM270_SRCS) \
-                    $(EVMV10_SRCS) $(FXRM9200_SRCS) \
+                    $(EVMV10_SRCS) $(TOMTOM_TS_SRCS)  $(FXRM9200_SRCS) \
                     $(ABSSIG_SRCS) $(SKYEYE_EP7312_SRCS) $(FIGUER_SRCS) \
 					$(HI3510_SRCS) 
 

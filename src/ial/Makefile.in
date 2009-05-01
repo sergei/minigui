@@ -63,9 +63,10 @@ am__libial_la_SOURCES_DIST = ial.c dummy.c dummy.h auto.c auto.h \
 	svpxx.h svpxx.c embest2410.c embest2410.h ads7846.h ads7846.c \
 	hh5249kbdir.c hh5249kbdir.h ps2-keycode.h ps2-conv.c utpmc.c \
 	utpmc.h fft7202.c fft7202.h dm270.c dm270.h evmv10.c evmv10.h \
-	fxrm9200.c fxrm9200.h abssig.c abssig.h abs_signal_driver.c \
-	abs_signal_driver.h skyeye-ep7312.c skyeye-ep7312.h figueroa.c \
-	figueroa.h hi3510.c hi3510.h
+	ial_tomtom_ts.c ial_tomtom_ts.h fxrm9200.c fxrm9200.h abssig.c \
+	abssig.h abs_signal_driver.c abs_signal_driver.h \
+	skyeye-ep7312.c skyeye-ep7312.h figueroa.c figueroa.h hi3510.c \
+	i3510.h
 am__objects_1 = ial.lo
 am__objects_2 = dummy.lo
 am__objects_3 = auto.lo
@@ -107,12 +108,13 @@ am__objects_38 = utpmc.lo
 am__objects_39 = fft7202.lo
 am__objects_40 = dm270.lo
 am__objects_41 = evmv10.lo
-am__objects_42 = fxrm9200.lo
-@ABSSIG_IAL_ENGINE_TRUE@am__objects_43 = abssig.lo \
+am__objects_42 = ial_tomtom_ts.lo
+am__objects_43 = fxrm9200.lo
+@ABSSIG_IAL_ENGINE_TRUE@am__objects_44 = abssig.lo \
 @ABSSIG_IAL_ENGINE_TRUE@	abs_signal_driver.lo
-am__objects_44 = skyeye-ep7312.lo
-am__objects_45 = figueroa.lo
-am__objects_46 = hi3510.lo
+am__objects_45 = skyeye-ep7312.lo
+am__objects_46 = figueroa.lo
+am__objects_47 = hi3510.lo
 am_libial_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4) $(am__objects_5) \
 	$(am__objects_6) $(am__objects_7) $(am__objects_8) \
@@ -128,7 +130,7 @@ am_libial_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_36) $(am__objects_37) $(am__objects_38) \
 	$(am__objects_39) $(am__objects_40) $(am__objects_41) \
 	$(am__objects_42) $(am__objects_43) $(am__objects_44) \
-	$(am__objects_45) $(am__objects_46)
+	$(am__objects_45) $(am__objects_46) $(am__objects_47)
 libial_la_OBJECTS = $(am_libial_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -335,9 +337,10 @@ HH5249KBDIR_SRCS = hh5249kbdir.c hh5249kbdir.h ps2-keycode.h ps2-conv.c
 UTPMC_SRCS = utpmc.c utpmc.h
 FFT7202_SRCS = fft7202.c fft7202.h
 FXRM9200_SRCS = fxrm9200.c fxrm9200.h
+TOMTOM_TS_SRCS = ial_tomtom_ts.c ial_tomtom_ts.h
 SKYEYE_EP7312_SRCS = skyeye-ep7312.c skyeye-ep7312.h
 FIGUER_SRCS = figueroa.c figueroa.h
-HI3510_SRCS = hi3510.c hi3510.h
+HI3510_SRCS = hi3510.c i3510.h
 @NATIVE_IAL_ENGINE_TRUE@libial_la_LIBADD = native/libnative.la
 @ABSSIG_IAL_ENGINE_FALSE@ABSSIG_SRCS = 
 @ABSSIG_IAL_ENGINE_TRUE@ABSSIG_SRCS = abssig.c abssig.h abs_signal_driver.c abs_signal_driver.h
@@ -353,7 +356,7 @@ libial_la_SOURCES = $(COMMON_SRCS) $(DUMMY_SRCS) $(AUTO_SRCS) $(RANDOM_SRCS) $(C
                     $(EMBEST44B0_SRCS) $(SVPXX_SRCS) \
                     $(EMBEST2410_SRCS) $(ADS7846_SRCS) $(HH5249KBDIR_SRCS) \
                     $(UTPMC_SRCS) $(FFT7202_SRCS) $(DM270_SRCS) \
-                    $(EVMV10_SRCS) $(FXRM9200_SRCS) \
+                    $(EVMV10_SRCS) $(TOMTOM_TS_SRCS)  $(FXRM9200_SRCS) \
                     $(ABSSIG_SRCS) $(SKYEYE_EP7312_SRCS) $(FIGUER_SRCS) \
 					$(HI3510_SRCS) 
 
@@ -370,9 +373,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/ial/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/ial/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/ial/Makefile
+	  $(AUTOMAKE) --gnu  src/ial/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -439,6 +442,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hh5249kbdir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hi3510.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ial.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ial_tomtom_ts.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ipaq.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/l7200.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mc68x328.Plo@am__quote@

@@ -688,6 +688,9 @@
 /* Define if it is tiny screen */
 #undef _TINY_SCREEN
 
+/* Define if include IAL engine for TOMTOM touch screen */
+#undef _TOMTOM_TS_IAL
+
 /* Define if trace message dispatching of MiniGUI */
 #undef _TRACE_MSG
 
