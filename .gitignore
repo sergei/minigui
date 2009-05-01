@@ -6,10 +6,15 @@
 .deps
 *.libs
 *~
-Makefile
-libtool
 
 # Files produced by autoconf 
+
+Makefile
+Makefile.in
+configure
+libtool
+mgconfig.h.in
+mgconfig.h
 
 autom4te.cache
 config.log
