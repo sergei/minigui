@@ -5,5 +5,7 @@
    --build=i386-linux --host=arm-unknown-linux \
    --enable-tomtomtsial \
    --enable-static \
-   --disable-shared 
+   --disable-shared \
+   --enable-qpfsupport    
+  
     
