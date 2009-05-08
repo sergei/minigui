@@ -160,6 +160,9 @@
 #ifdef _ABSSIG_IAL
     #include "abssig.h"
 #endif
+#ifdef _TOMTOM_TS_IAL
+    #include "ial_tomtom_ts.h"
+#endif
 #ifdef _SKYEYE_EP7312_IAL
     #include "skyeye-ep7312.h"
 #endif
@@ -311,6 +314,10 @@ static INPUT inputs [] =
 #ifdef _ABSSIG_IAL
     {"abssig", InitABSSIGInput, TermABSSIGInput},
 #endif
+#ifdef _TOMTOM_TS_IAL
+    {"tomtom", InitTomtomTSInput, TermTomtomTSInput},
+#endif
+
 #ifdef _SKYEYE_EP7312_IAL
     {"SkyEyeEP7312", InitSkyEyeEP7312Input, TermSkyEyeEP7312Input},
 #endif

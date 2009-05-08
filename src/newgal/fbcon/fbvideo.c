@@ -1,11 +1,11 @@
 /*
 **  $Id: fbvideo.c 9842 2008-03-17 09:01:44Z xwyan $
-**  
+**
 **  Copyright (C) 2003 ~ 2007 Feynman Software.
 **  Copyright (C) 2001 ~ 2002 Wei Yongming.
 */
 
-/* 
+/*
  * Framebuffer console based video driver implementation.
  */
 
@@ -36,8 +36,8 @@
 
 /*
 #define FBACCEL_DEBUG   1
-#define FBCON_DEBUG   1
 */
+#define FBCON_DEBUG   1
 
 #if defined(i386) && defined(FB_TYPE_VGA_PLANES)
 #if 0
@@ -49,7 +49,7 @@
 inline static void outb (unsigned char value, unsigned short port)
 {
   __asm__ __volatile__ ("outb %b0,%w1"::"a" (value), "Nd" (port));
-} 
+}
 #endif
 #endif /* FB_TYPE_VGA_PLANES */
 
@@ -91,7 +91,7 @@ static int FB_Available(void)
 
     GAL_fbdev = getenv("FRAMEBUFFER");
     if ( GAL_fbdev == NULL ) {
-        GAL_fbdev = "/dev/fb0";
+        GAL_fbdev = "/dev/fb";
     }
     console = open(GAL_fbdev, O_RDWR, 0);
     if ( console >= 0 ) {
@@ -302,11 +302,19 @@ static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat)
     /* Initialize the library */
     GAL_fbdev = getenv("FRAMEBUFFER");
     if ( GAL_fbdev == NULL ) {
-        GAL_fbdev = "/dev/fb0";
+        GAL_fbdev = "/dev/fb";
     }
     console_fd = open(GAL_fbdev, O_RDWR, 0);
     if ( console_fd < 0 ) {
         GAL_SetError("NEWGAL>FBCON: Unable to open %s\n", GAL_fbdev);
+        return(-1);
+    }
+
+    vinfo.xoffset = 0;
+    vinfo.yoffset = 0;
+	if (ioctl (console_fd, FBIOPAN_DISPLAY, &vinfo) )
+    {
+		printf("FB_VideoInit: Error paning to vinfo(%d ,%d).\n", vinfo.xoffset, vinfo.yoffset);
         return(-1);
     }
 
@@ -365,7 +373,7 @@ static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat)
     mapped_offset = (((long)finfo.smem_start) -
                     (((long)finfo.smem_start)&~(getpagesize () - 1)));
     mapped_memlen = finfo.smem_len+mapped_offset;
-    
+
 #ifdef __uClinux__
 #  ifdef __TARGET_BLACKFIN__
 	mapped_mem = mmap(NULL, mapped_memlen,
@@ -378,7 +386,7 @@ static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat)
 	mapped_mem = mmap(NULL, mapped_memlen,
 						    PROT_READ|PROT_WRITE, MAP_SHARED, console_fd, 0);
 #endif
-	
+
 	if (mapped_mem == (char *)-1) {
         GAL_SetError("NEWGAL>FBCON: Unable to memory map the video hardware\n");
         mapped_mem = NULL;
@@ -1002,7 +1010,7 @@ static void FB_RequestHWSurface (_THIS, const REQ_HWSURFACE* request, REP_HWSURF
             bucket->used = 0;
             if ( bucket->next && ! bucket->next->used ) {
 #ifdef FBCON_DEBUG
-                fprintf(stderr, "NEWGAL>FBCON: Merging with next bucket, for %d total bytes\n", 
+                fprintf(stderr, "NEWGAL>FBCON: Merging with next bucket, for %d total bytes\n",
                                 bucket->size+bucket->next->size);
 #endif
                 freeable = bucket->next;
@@ -1015,7 +1023,7 @@ static void FB_RequestHWSurface (_THIS, const REQ_HWSURFACE* request, REP_HWSURF
             }
             if ( bucket->prev && ! bucket->prev->used ) {
 #ifdef FBCON_DEBUG
-                fprintf(stderr, "NEWGAL>FBCON: Merging with previous bucket, for %d total bytes\n", 
+                fprintf(stderr, "NEWGAL>FBCON: Merging with previous bucket, for %d total bytes\n",
                                 bucket->prev->size+bucket->size);
 #endif
                 freeable = bucket;
@@ -1140,7 +1148,7 @@ static void FB_VGA16Update(_THIS, int numrects, GAL_Rect *rects)
     left = rects->x & ~7;
         width = (rects->w + 7) >> 3;
         height = rects->h;
-        src = (Uint32*)screen->pixels + (rects->y * SRCPitch) + (left >> 2); 
+        src = (Uint32*)screen->pixels + (rects->y * SRCPitch) + (left >> 2);
         dst = (Uint8*)mapped_mem + (rects->y * FBPitch) + (left >> 3);
 
     if((phase = (long)dst & 3L)) {
@@ -1239,7 +1247,7 @@ static void FB_VGA16Update(_THIS, int numrects, GAL_Rect *rects)
          *dstPtr++ = (m >> 26) | (m >> 17) | (m >> 8) | (m << 1);
         srcPtr += 2;
         }
-        
+
         writeSeq(0x02, 1 << 3);
         dstPtr = dst;
         srcPtr = src;
