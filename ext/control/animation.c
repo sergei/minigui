@@ -4,7 +4,7 @@
 ** animation.c: the Animation control
 **
 ** Copyright (C) 2004~2007 Feynman Software
-** 
+**
 ** Create date: 2004/07/14
 */
 
@@ -84,7 +84,7 @@ static void add_pixel_to_gal_colors (struct gal_pixel_table* table, gal_pixel pi
 {
     if(table->colors == NULL)
         table->colors = calloc(table->size, sizeof(gal_pixel));
-    if(bsearch(&pixel, table->colors, table->count, 
+    if(bsearch(&pixel, table->colors, table->count,
                             sizeof(gal_pixel), pixel_compare))
         return;
 
@@ -98,12 +98,12 @@ static void add_pixel_to_gal_colors (struct gal_pixel_table* table, gal_pixel pi
     qsort(table->colors, table->count, sizeof(gal_pixel), pixel_compare);
 }
 
-static BOOL is_pixel_in_gal_colors(struct gal_pixel_table* table, 
+static BOOL is_pixel_in_gal_colors(struct gal_pixel_table* table,
                 gal_pixel pixel)
 {
     if (table->colors == NULL)
         return FALSE;
-    if (bsearch(&pixel, table->colors, table->count, 
+    if (bsearch(&pixel, table->colors, table->count,
                             sizeof(gal_pixel), pixel_compare) == NULL)
         return FALSE;
     return TRUE;
@@ -135,7 +135,7 @@ static gal_pixel anim_get_color_key (ANIMATIONINFO* anim_info)
         GetPalette(f->mem_dc, 0, colornum, colors);
         for(i=0; i< colornum; i++)
         {
-            pixel = RGB2Pixel(anim_info->mem_dc, 
+            pixel = RGB2Pixel(anim_info->mem_dc,
                             colors[i].r, colors[i].g, colors[i].b);
             add_pixel_to_gal_colors(&table, pixel);
         }
@@ -175,7 +175,7 @@ static void draw_frame (HDC hdc, ANIMATIONFRAME* frame)
 static void restore_bk_color (ANIMATIONINFO* anim_info, ANIMATIONFRAME* frame)
 {
     SetBrushColor (anim_info->mem_dc, GetBkColor(anim_info->mem_dc));
-    FillBox (anim_info->mem_dc, frame->off_x, frame->off_y, 
+    FillBox (anim_info->mem_dc, frame->off_x, frame->off_y,
                     frame->width, frame->height);
 }
 
@@ -197,16 +197,16 @@ static void restore_prev_frame (ANIMATIONINFO* anim_info, ANIMATIONFRAME* frame)
     draw_frame (anim_info->mem_dc, frame);
 }
 
-static void anim_treat_frame_disposal (ANIMATIONINFO* anim_info, 
+static void anim_treat_frame_disposal (ANIMATIONINFO* anim_info,
                                        ANIMATIONFRAME* frame)
 {
     int disposal = -1;
-    
+
     if (frame)
         disposal = frame->disposal;
     else {
         SetBrushColor (anim_info->mem_dc, GetBkColor(anim_info->mem_dc));
-        FillBox (anim_info->mem_dc, anim_info->anim->frames->off_x, anim_info->anim->frames->off_y, 
+        FillBox (anim_info->mem_dc, anim_info->anim->frames->off_x, anim_info->anim->frames->off_y,
                  anim_info->anim->frames->width, anim_info->anim->frames->height);
     }
 
@@ -230,7 +230,7 @@ static void next_frame (HWND hwnd, ANIMATIONINFO* anim_info)
     if (anim_info->current == NULL) {
         anim_info->current = anim_info->anim->frames;
     } else {
-        if (anim_info->current->next == NULL 
+        if (anim_info->current->next == NULL
             && (GetWindowStyle (hwnd) & ANS_AUTOLOOP)) {
             anim_info->current = anim_info->anim->frames;
         } else {
@@ -257,7 +257,7 @@ static void setup_anim_mem_dc (HWND hwnd, ANIMATIONINFO* anim_info)
         DeleteCompatibleDC (anim_info->mem_dc);
     hdc = GetClientDC (hwnd);
 #ifdef _USE_NEWGAL
-    anim_info->mem_dc = CreateCompatibleDCEx (hdc, 
+    anim_info->mem_dc = CreateCompatibleDCEx (hdc,
                     anim_info->anim->width, anim_info->anim->height);
 #else
     anim_info->mem_dc = CreateCompatibleDC (hdc);
@@ -271,7 +271,7 @@ static void setup_anim_mem_dc (HWND hwnd, ANIMATIONINFO* anim_info)
     SetBkColor (anim_info->mem_dc, bk_pixel);
     SetBrushColor (anim_info->mem_dc, bk_pixel);
     FillBox (anim_info->mem_dc, 0, 0,
-            GetGDCapability (hdc, GDCAP_MAXX)+1, 
+            GetGDCapability (hdc, GDCAP_MAXX)+1,
             GetGDCapability (hdc, GDCAP_MAXY)+1);
 
     ReleaseDC (hdc);
@@ -281,22 +281,22 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
 {
     ANIMATIONINFO* anim_info = (ANIMATIONINFO*)GetWindowAdditionalData2 (hwnd);
 
-    switch (message) {   
+    switch (message) {
     case MSG_CREATE:
         if (!HaveFreeTimer ()) {
-            fprintf (stderr, 
+            fprintf (stderr,
                      "Animation error : no free timer is available!\n");
             return -1;
         }
         anim_info = (ANIMATIONINFO*) calloc (1, sizeof (ANIMATIONINFO));
         if (anim_info == NULL)
             return -1;
-        
+
         SetWindowAdditionalData2 (hwnd, (DWORD)anim_info);
         if(lParam)
             SendMessage (hwnd, ANM_SETANIMATION, 0, lParam);
         break;
-        
+
     case MSG_DESTROY:
         if (anim_info->mem_dc)
                 DeleteCompatibleDC (anim_info->mem_dc);
@@ -304,7 +304,7 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
         /* timer will be freed automatically */
         //KillTimer (hwnd, ID_TIMER);
         break;
-        
+
     case MSG_TIMER:
         if(anim_info->anim == NULL)
             return 0;
@@ -320,43 +320,43 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
             }
         }
         return 0;
-        
+
     case MSG_PAINT: {
 
         HDC hdc;
         HDC src_dc;
         RECT rc_anim;
-        
+
         if (!anim_info->mem_dc)
             break;
-        
+
         hdc = BeginPaint (hwnd);
         src_dc = anim_info->mem_dc;
-        
+
         if (GetWindowStyle (hwnd) & ANS_SCALED) {
             GetClientRect (hwnd, &rc_anim);
         } else {
-            SetRect (&rc_anim, 0, 0, anim_info->anim->width, 
+            SetRect (&rc_anim, 0, 0, anim_info->anim->width,
                      anim_info->anim->height);
         }
-        
+
         if (RECTW (rc_anim) == anim_info->anim->width
             && RECTH (rc_anim) == anim_info->anim->height) {
             BitBlt (anim_info->mem_dc, 0, 0, 0, 0, hdc, 0, 0, 0);
         } else {
-            StretchBlt (anim_info->mem_dc, 0, 0, 
+            StretchBlt (anim_info->mem_dc, 0, 0,
                         anim_info->anim->width, anim_info->anim->height,
                         hdc,
-                        0, 0, 
+                        0, 0,
                         RECTW (rc_anim), RECTH (rc_anim), 0);
         }
-        
+
         EndPaint (hwnd, hdc);
         return 0;
     }
-        
+
     case ANM_SETANIMATION: {
-        
+
           ANIMATION* old = anim_info->anim;
           anim_info->anim = (ANIMATION*)lParam;
           anim_info->current = NULL;
@@ -365,8 +365,8 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
               if (GetWindowStyle (hwnd) & ANS_FITTOANI) {
                   RECT rc;
                   GetWindowRect(hwnd, &rc);
-                  MoveWindow(hwnd, rc.left, rc.top, 
-                             anim_info->anim->width, 
+                  MoveWindow(hwnd, rc.left, rc.top,
+                             anim_info->anim->width,
                              anim_info->anim->height, FALSE);
               }
               anim_info->current = NULL;
@@ -374,16 +374,16 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
               next_frame(hwnd, anim_info);
               anim_info->elapsed_10ms = 0;
               //SetTimer (hwnd, ID_TIMER, anim_info->anim->time_unit);
-              SetTimer (hwnd, ID_TIMER, 1);
+              SetTimer (hwnd, ID_TIMER, 10);
           }
           return (int)old;
       }
-      
+
     case ANM_GETANIMATION:
         return (int)anim_info->anim;
-        
+
     case ANM_STARTPLAY: {
-     
+
         if (anim_info->anim) {
             anim_info->current = NULL;
             anim_info->status = ANIM_STATUS_PLAY;
@@ -401,7 +401,7 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
                 anim_info->status = ANIM_STATUS_PLAY;
         }
         return 0;
-        
+
     case ANM_STOPPLAY:
         if(anim_info->anim)
         {
@@ -412,19 +412,19 @@ static int AnimationCtrlProc (HWND hwnd, int message, WPARAM wParam, LPARAM lPar
             InvalidateRect (hwnd, NULL, FALSE);
             }
         return 0;
-        
+
     case MSG_LBUTTONDBLCLK:
         NotifyParent (hwnd, GetDlgCtrlID (hwnd), ANNC_DBLCLK);
         break;
-        
+
     case MSG_LBUTTONDOWN:
         NotifyParent (hwnd, GetDlgCtrlID (hwnd), ANNC_CLICKED);
         break;
-        
+
         default:
             break;
     }
-    
+
     return DefaultControlProc (hwnd, message, wParam, lParam);
 }
 
