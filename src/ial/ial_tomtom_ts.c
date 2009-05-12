@@ -73,7 +73,9 @@ typedef struct {
 } TS_MATRIX;
 
 #define TS_DRIVER_MAGIC	'f'
+#define TS_SET_RAW_ON	_IO(TS_DRIVER_MAGIC, 14)
 #define TS_SET_RAW_OFF	_IO(TS_DRIVER_MAGIC, 15)
+#define TS_GET_CAL		_IOR(TS_DRIVER_MAGIC, 10, TS_MATRIX)
 #define TS_SET_CAL		_IOW(TS_DRIVER_MAGIC, 11, TS_MATRIX)
 
 static int fd = -1;
@@ -86,7 +88,9 @@ typedef enum  {
 
 static DisplayType displayType;
 static BOOL rotatedTouchScreenCalib = FALSE;
+static 	TS_MATRIX saved_tsmatrix;
 
+//#define USE_NATIVE_CAL 1
 
 static int mousex = 0;
 static int mousey = 0;
@@ -102,7 +106,12 @@ static int mouse_update (void)
     TS_EVENT cBuffer;
 
 	if( read (fd, &cBuffer, sizeof (TS_EVENT)) > 0){
-		cBuffer.y = 239 - cBuffer.y;
+#ifndef USE_NATIVE_CAL
+		if ( displayType == dpy480x272x565)
+			cBuffer.y = 271 - cBuffer.y;
+		else
+			cBuffer.y = 239 - cBuffer.y;
+#endif
 		mousex = cBuffer.x;
 		mousey = cBuffer.y;
 
@@ -274,6 +283,7 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 		return FALSE;
 	}
 
+#ifndef USE_NATIVE_CAL
 
 	/*
 	* Calibrate the touch-panel device
@@ -287,7 +297,7 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 	tsmatrix.Fn = -12676;
 	tsmatrix.Divider = 1000;
 	if((fd = open("/mnt/flash/sysfile/cal", O_RDONLY)) < 0) {
-		fprintf (stderr, "could not open touchscreen calibration file");
+		fprintf (stderr, "could not open touchscreen calibration file\n");
 		tsmatrix.xMin = 0;
 		tsmatrix.xMax = 1023;
 		tsmatrix.yMin = 0;
@@ -306,7 +316,7 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 			tsmatrix.yMin = tscal.min2;
 			tsmatrix.yMax = tscal.max2;
 		}
-		fprintf (stdout, "touchscreen calibration xmin:%d xmax:%d ymin:%d ymax:%d",
+		fprintf (stdout, "new cal xmin:%d xmax:%d ymin:%d ymax:%d\n",
 			tsmatrix.xMin, tsmatrix.xMax, tsmatrix.yMin, tsmatrix.xMax);
 	}
 	if((fd = open("/dev/ts", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
@@ -319,8 +329,17 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 	flag |= O_NONBLOCK;
 	fcntl(fd, F_SETFL, flag);
 
+
+	/* Store original calibration */
+	printf("Storing TomTom calibration\n");
+	ioctl(fd, TS_GET_CAL, &saved_tsmatrix);
+	fprintf (stdout, "stored cal xmin:%d xmax:%d ymin:%d ymax:%d\n",
+		tsmatrix.xMin, tsmatrix.xMax, tsmatrix.yMin, tsmatrix.xMax);
+
 	ioctl(fd, TS_SET_CAL, &tsmatrix);
 	ioctl(fd, TS_SET_RAW_OFF, NULL);
+
+#endif // USE_NATIVE_CAL
 
 	// flush fifo
 	while(read(fd, &tsevent, sizeof(tsevent)) > 0) ;
@@ -339,7 +358,14 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 void TermTomtomTSInput (void)
 {
     if (fd >= 0)
+    {
+#ifndef USE_NATIVE_CAL
+    	printf("Restoring TomTom calibration ...\n");
+    	ioctl(fd, TS_SET_CAL, &saved_tsmatrix);
+    	ioctl(fd, TS_SET_RAW_ON, NULL);
+#endif // USE_NATIVE_CAL
         close (fd);
+    }
     fd = -1;
 }
 
