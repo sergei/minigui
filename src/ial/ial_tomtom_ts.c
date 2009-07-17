@@ -38,6 +38,7 @@
 #include <sys/stat.h>
 #include <linux/kd.h>
 #include <errno.h>
+#include <linux/input.h>
 
 #include "ial.h"
 #include "ial_tomtom_ts.h"
@@ -88,26 +89,96 @@ typedef enum  {
 
 static DisplayType displayType;
 static BOOL rotatedTouchScreenCalib = FALSE;
+static 	TS_MATRIX ts_matrix;
 static 	TS_MATRIX saved_tsmatrix;
+int     eventMode = 0; // Use the /dev/input/event0 for TS
 
 //#define USE_NATIVE_CAL 1
 
 static int mousex = 0;
 static int mousey = 0;
 static int stylus = 0;
+static int xres = 480;
+static int yres = 272;
+
+static char touch_screen_driver_name[80]="/dev/ts";
 
 static inline int get_middle (int x, int y, int z)
 {
     return ((x + y + z) / 3);
 }
 
+
+static int readTS (TS_EVENT *pev) {
+  struct input_event ev2;
+
+  pev->pressure = 0;
+  pev->x = -1; // Reset...
+  pev->y = -1;
+
+  if (eventMode) {
+     int retval = read(fd, &ev2, sizeof(struct input_event)) == sizeof(struct input_event) ? 1 : 0;
+     while (retval) {
+       //printf("ev2{value=%d type=%d code=%d}\n", ev2.value, ev2.type, ev2.code);
+       if (ev2.type==EV_ABS && ev2.code==ABS_X) {
+    	   pev->x = ev2.value;
+    	   pev->x = (((pev->x - ts_matrix.xMin) * (xres-30)) / (ts_matrix.xMax - ts_matrix.xMin)) +15;
+           if (pev->x < 0)
+        	   pev->x = 0;
+           else if ((unsigned)pev->x > xres)
+              pev->x = xres;
+           pev->x = xres - pev->x;
+           //printf("pev->x=%d xres=%d ts_matrix{xMin=%d xMax=%d}\n",pev->x, xres, ts_matrix.xMin, ts_matrix.xMax);
+           if (pev->y!=-1) // -> full dataset.
+              return 1;
+        } else if (ev2.type==EV_ABS && ev2.code==ABS_Y) {
+        	pev->y = ev2.value;
+        	pev->y = (((pev->y - ts_matrix.yMin) * (yres-30)) / (ts_matrix.yMax - ts_matrix.yMin)) +15;
+           if (pev->y < 0)
+        	   pev->y = 0;
+           else if ((unsigned)pev->y > yres)
+        	   pev->y = yres;
+           pev->y = yres - pev->y;
+           //printf("pev->y=%d yres=%d ts_matrix{yMin=%d yMax=%d}\n",pev->y, yres, ts_matrix.yMin, ts_matrix.yMax);
+
+           if (pev->x!=-1) // -> full dataset.
+              return 1;
+       } else if (ev2.type==EV_KEY && ev2.code==BTN_TOUCH) {
+
+		 if (ev2.value) {
+			 pev->pressure = 255;
+			 pev->x = -1; // Reset...
+			 pev->y = -1;
+			 } else {
+				   pev->pressure = 0;
+				   return 1; // button-release -> another full dataset.
+			   }
+			}
+        retval = read(fd, &ev2, sizeof(struct input_event)) == sizeof(struct input_event) ? 1 : 0;
+     }
+     return retval;
+  } else
+     return read(fd, pev, sizeof(TS_EVENT)) == sizeof(TS_EVENT) ? 1 : 0;
+}
+
+static int flushTS(void) {
+  int count=0;
+  TS_EVENT ev;
+  while (readTS(&ev))
+     count++;
+  return count;
+}
+
 static int mouse_update (void)
 {
     TS_EVENT cBuffer;
 
-	if( read (fd, &cBuffer, sizeof (TS_EVENT)) > 0){
+    //	if( read (fd, &cBuffer, sizeof (TS_EVENT)) > 0){
+    if( readTS( &cBuffer) > 0){
 #ifndef USE_NATIVE_CAL
-		if ( displayType == dpy480x272x565)
+		if ( eventMode )
+			cBuffer.y = cBuffer.y;
+		else if ( displayType == dpy480x272x565)
 			cBuffer.y = 271 - cBuffer.y;
 		else
 			cBuffer.y = 239 - cBuffer.y;
@@ -119,6 +190,8 @@ static int mouse_update (void)
 			stylus = IAL_MOUSE_LEFTBUTTON;
         else
 			stylus = 0;
+
+        //printf("mouse_update x=%d y=%d stylus=%d\n", mousex, mousey, stylus );
     }
 
     return 1;
@@ -255,6 +328,12 @@ static BOOL GetPlatformInfo( void )
 		// Limerick
 		displayType = dpy480x272x565;
 		rotatedTouchScreenCalib = FALSE;
+	} else if(strcmp(str, "TomTom GO 920") == 0) {
+		// Milan
+		displayType = dpy480x272x565;
+		rotatedTouchScreenCalib = FALSE;
+		strcpy(touch_screen_driver_name, "/dev/input/event0");
+		eventMode = 1;
 	} else if(strcmp(str, "RAIDER") == 0) {
 		// RAIDER
 		displayType = dpy320x240x565;
@@ -273,7 +352,7 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 
 	TS_CAL tscal;
 	TS_MATRIX tsmatrix;
-	TS_EVENT tsevent;
+	//TS_EVENT tsevent;
 
 	long flag;
 
@@ -319,8 +398,11 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 		fprintf (stdout, "new cal xmin:%d xmax:%d ymin:%d ymax:%d\n",
 			tsmatrix.xMin, tsmatrix.xMax, tsmatrix.yMin, tsmatrix.xMax);
 	}
-	if((fd = open("/dev/ts", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
-		fprintf (stderr, "could not open touchscreen");
+
+	printf("Opening [%s] for TS driver...\n", touch_screen_driver_name);
+
+	if((fd = open(touch_screen_driver_name, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
+		fprintf (stderr, "could not open touchscreen (%s)\n", strerror(errno));
 		fd = -1;
 		return FALSE;
 	}
@@ -338,11 +420,12 @@ BOOL InitTomtomTSInput (INPUT* input, const char* mdev, const char* mtype)
 
 	ioctl(fd, TS_SET_CAL, &tsmatrix);
 	ioctl(fd, TS_SET_RAW_OFF, NULL);
-
+	ts_matrix = tsmatrix;
 #endif // USE_NATIVE_CAL
 
 	// flush fifo
-	while(read(fd, &tsevent, sizeof(tsevent)) > 0) ;
+	//while(read(fd, &tsevent, sizeof(tsevent)) > 0) ;
+	flushTS();
 
 	input->update_mouse = mouse_update;
     input->get_mouse_xy = mouse_getxy;
