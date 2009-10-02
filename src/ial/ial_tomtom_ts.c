@@ -328,7 +328,7 @@ static BOOL GetPlatformInfo( void )
 		// Limerick
 		displayType = dpy480x272x565;
 		rotatedTouchScreenCalib = FALSE;
-	} else if(strcmp(str, "TomTom GO 920") == 0) {
+	} else if(strncmp(str, "TomTom GO", strlen("TomTom GO")) == 0) {
 		// Milan
 		displayType = dpy480x272x565;
 		rotatedTouchScreenCalib = FALSE;
